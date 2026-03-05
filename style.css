@@ -1,0 +1,1167 @@
+/* ===================================================== */
+/* ======================= RESET ======================= */
+/* ===================================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+/* ===================================================== */
+/* ======================= BODY ======================== */
+/* ===================================================== */
+/* ===================================================== */
+/* SPORTS THEME BACKGROUND */
+/* ===================================================== */
+
+body:not(.profile-body) {
+    margin: 0;
+    min-height: 100vh;
+    padding-top: 70px;
+    position: relative;
+    overflow-x: hidden;
+
+    /* base stadium gradient */
+    background: linear-gradient(135deg, #ff8c00, #ffb347);
+
+    /* diagonal sport stripes */
+    background-image:
+        repeating-linear-gradient(
+            135deg,
+            rgba(255,255,255,0.06) 0px,
+            rgba(255,255,255,0.06) 12px,
+            transparent 12px,
+            transparent 36px
+        );
+}
+
+/* ===================================================== */
+/* ================= GENERAL CARD ====================== */
+/* ===================================================== */
+.container {
+    background: white;
+    width: 360px;
+    padding: 35px;
+    border-radius: 15px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+    margin: auto;
+}
+
+.container h2 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #e65100;
+}
+
+/* ===================================================== */
+/* ================= INPUTS ============================ */
+/* ===================================================== */
+.input-group {
+    margin-bottom: 15px;
+}
+
+.input-group label {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.input-group input,
+.input-group select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    background: white;
+    transition: 0.3s;
+}
+
+.input-group input:focus,
+.input-group select:focus {
+    border-color: #ff6f00;
+    outline: none;
+    box-shadow: 0 0 8px rgba(255,111,0,0.3);
+}
+
+/* ===================================================== */
+/* ================= BUTTON ============================ */
+/* ===================================================== */
+button {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    background: #ff6f00;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+button:hover {
+    background: #e65100;
+    transform: scale(1.03);
+}
+
+/* ===================================================== */
+/* ================= LINKS ============================= */
+/* ===================================================== */
+.link {
+    text-align: center;
+    margin-top: 15px;
+}
+
+.link a {
+    text-decoration: none;
+    color: #e65100;
+    font-weight: 600;
+}
+
+.link a:hover {
+    text-decoration: underline;
+}
+
+/* ===================================================== */
+/* ================= DASHBOARD ========================= */
+/* ===================================================== */
+.dashboard {
+    background: white;
+    padding: 40px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+    margin: auto;
+}
+
+.dashboard h2 {
+    margin-bottom: 20px;
+    color: #e65100;
+}
+
+.logout-btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background: crimson;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+}
+
+/* ===================================================== */
+/* ================= ADMIN TOP NAV ===================== */
+/* ===================================================== */
+.admin-topbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 70px;
+    background: #111827;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 40px;
+    z-index: 1000;
+}
+
+.nav-left {
+    display: flex;
+    align-items: center;
+}
+
+/* Brand */
+.gradient-brand {
+    font-size: 22px;
+    font-weight: 700;
+    background: linear-gradient(90deg,#ff6f00,#ff8f00,#ffffff,#ff6f00);
+    background-size: 300%;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradientMoveText 6s linear infinite;
+    text-shadow: 0 0 15px rgba(255,111,0,0.6);
+}
+
+/* Navbar */
+.topbar-links,
+.topbar-right {
+    display: flex;
+    gap: 40px;
+    align-items: center;
+}
+
+.topbar-links a {
+    color: #d1d5db;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.topbar-links a:hover {
+    color: white;
+}
+
+.logout-btn-small {
+    background: #ff6f00;
+    padding: 6px 12px;
+    border-radius: 8px;
+    color: white;
+    text-decoration: none;
+    font-size: 13px;
+}
+
+.logout-btn-small:hover {
+    background: #e65100;
+}
+
+/* ===================================================== */
+/* ================= ADMIN CONTENT ===================== */
+/* ===================================================== */
+.admin-content {
+    padding: 40px;
+}
+
+.dashboard-section {
+    margin-top: 60px;
+}
+
+.dashboard-section h2 {
+    margin-bottom: 20px;
+    font-size: 20px;
+    color: #111827;
+}
+
+/* ===================================================== */
+/* ================= STATS GRID ======================== */
+/* ===================================================== */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.stat-card {
+    padding: 25px;
+    border-radius: 22px;
+    color: white;
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255,255,255,0.25);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    transition: 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 160px;
+}
+
+.stat-card:hover {
+    transform: translateY(-10px) scale(1.05);
+}
+
+.stats-grid .stat-card:nth-child(1) {
+    background: linear-gradient(135deg, #ff6f00, #ff8f00);
+}
+
+.stats-grid .stat-card:nth-child(2) {
+    background: linear-gradient(135deg, #3b82f6, #60a5fa);
+}
+
+.stats-grid .stat-card:nth-child(3) {
+    background: linear-gradient(135deg, #10b981, #34d399);
+}
+
+.stat-card h3 {
+    font-size: 18px;
+    opacity: 0.9;
+}
+
+.stat-card p {
+    font-size: 42px;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+/* ===================================================== */
+/* ================= NOTIFICATIONS ===================== */
+/* ===================================================== */
+.notification-box {
+    background: white;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+}
+
+.notification-box p {
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+    font-size: 14px;
+}
+
+.notification-box p:last-child {
+    border-bottom: none;
+}
+
+/* ===================================================== */
+/* ================= TABLE PERFECT ALIGN ================ */
+/* ===================================================== */
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: rgb(151, 151, 151);
+    border-radius: 12px;
+    overflow: visible;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+.admin-table th {
+    background: #0f172a;
+    color: #8f8f8f;
+    padding: 16px 20px;
+    text-align: left;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.admin-table td {
+    padding: 14px 20px;
+    border-bottom: 1px solid #f1f5f9;
+    color: #334155;
+    font-size: 14px;
+    text-align: left;
+}
+
+.admin-table tr:last-child td {
+    border-bottom: none;
+}
+
+.admin-table tr:hover {
+    background: #f8fafc;
+}
+
+/* Specific column widths if needed */
+.admin-table th:first-child,
+.admin-table td:first-child {
+    width: 80px; /* ID Column */
+}
+
+/* Action text style */
+.no-actions {
+    color: #94a3b8;
+    font-size: 12px;
+}
+
+/* ===================================================== */
+/* ================= HAMBURGER ========================= */
+/* ===================================================== */
+.hamburger {
+    font-size: 28px;
+    color: white;
+    cursor: pointer;
+    display: none;
+}
+
+.nav-menu {
+    display: flex;
+    gap: 30px;
+}
+
+.nav-menu a {
+    color: white;
+    text-decoration: none;
+}
+
+.nav-menu a:hover {
+    color: #ff6f00;
+}
+
+.logout-mobile {
+    background: red;
+    padding: 6px 14px;
+    border-radius: 8px;
+    color: white !important;
+}
+
+/* ===================================================== */
+/* ================= REGISTER SPLIT LAYOUT ============= */
+/* ===================================================== */
+.split-container {
+    display: flex;
+    height: 100vh;
+}
+
+body:has(.split-container) {
+    padding-top: 0;
+}
+
+/* LEFT SIDE */
+.left-panel {
+    flex: 1;
+    background: linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url("register_bg.jpg") center/cover no-repeat;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 60px;
+    color: white;
+}
+
+.left-content {
+    max-width: 420px;
+}
+
+.left-content h1 {
+    font-size: 48px;
+    line-height: 1.1;
+    margin-bottom: 20px;
+}
+
+.left-content p {
+    font-size: 18px;
+    opacity: 0.9;
+}
+
+/* RIGHT SIDE */
+.right-panel {
+    flex: 1;
+    background: #1e293b;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.right-panel .container {
+    width: 420px;
+}
+
+/* Password wrapper fix */
+.password-wrapper {
+    position: relative;
+}
+
+.password-wrapper input {
+    padding-right: 40px;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+}
+/* ===================================================== */
+/* ========= MODERN REGISTRATION (LIKE IMAGE) =========== */
+/* ===================================================== */
+
+.register-modern {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    /* background image */
+    background:
+        linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)),
+        url("bg.jpg") center/cover no-repeat;
+
+    padding: 20px;
+}
+
+/* main card */     
+.modern-register {
+    width: 950px;
+    height: 560px;
+    background: #f3e6d2;
+    border-radius: 25px;
+    overflow: hidden;
+    display: flex;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.25);
+}
+
+/* ================= LEFT FORM ================= */
+
+.modern-left {
+    flex: 1;
+    padding: 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.back {
+    font-size: 14px;
+    text-decoration: none;
+    color: #666;
+    margin-bottom: 15px;
+}
+
+.modern-left h2 {
+    margin-bottom: 25px;
+    font-size: 26px;
+    color: #ff6f00;
+}
+
+/* inputs */
+.input-modern {
+    margin-bottom: 18px;
+}
+
+.input-modern label {
+    font-size: 13px;
+    font-weight: 600;
+    color: black;
+}
+
+.input-modern input,
+.input-modern select {
+    width: 100%;
+    padding: 12px;
+    margin-top: 6px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    background: #fff;
+    
+}
+
+/* checkbox */
+.terms {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    margin: 10px 0 20px;
+}
+.terms span {
+    color: black; /* choose any color */
+}
+
+/* button */
+.signup-btn {
+    width: 100%;
+    padding: 13px;
+    border-radius: 10px;
+    border: none;
+    background: #ff8419;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.signup-btn:hover {
+    opacity: 0.9;
+}
+
+/* ================= RIGHT PANEL ================= */
+
+.modern-right {
+    flex: 1;
+    background: linear-gradient(135deg,#ff8401,#ff9523);
+    border-top-left-radius: 180px;
+    border-bottom-left-radius: 180px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    text-align: center;
+}
+
+.modern-right h1 {
+    font-size: 42px;
+    margin-bottom: 10px;
+}
+
+.login-btn {
+    margin-top: 15px;
+    padding: 10px 25px;
+    border-radius: 20px;
+    border: 2px solid white;
+    color: white;
+    text-decoration: none;
+}
+
+.login-btn:hover {
+    background: white;
+    color: #f58320;
+}
+
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 900px) {
+    .modern-register {
+        flex-direction: column;
+        height: auto;
+    }
+
+    .modern-right {
+        border-radius: 0;
+        padding: 40px;
+    }
+}
+/* ===================================================== */
+/* FLOATING SPORT SHAPES (adds motion) */
+/* ===================================================== */
+
+body::before,
+body::after {
+    content: "";
+    position: fixed;
+    z-index: -1;
+    border-radius: 40px;
+    transform: rotate(25deg);
+    opacity: 0.15;
+}
+
+/* big stripe */
+body::before {
+    width: 500px;
+    height: 500px;
+    background: rgb(255, 130, 21);
+    top: -120px;
+    left: -150px;
+}
+
+/* second stripe */ 
+body::after {
+    width: 400px;
+    height: 400px;
+    background: #ff8400;
+    bottom: -150px;
+    right: -150px;
+}
+
+
+/* ===================================================== */
+/* CARDS — sporty glass look */
+/* ===================================================== */
+
+.stat-card,
+.notification-box,
+.admin-table {
+    background: rgba(255, 255, 255, 0.92);
+    border-radius: 18px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    
+}
+
+
+/* ===================================================== */
+/* OPTIONAL: stronger hover effect (feels dynamic) */
+/* ===================================================== */
+
+.stat-card {
+    transition: 0.25s;
+}
+
+.stat-card:hover {
+    transform: translateY(-6px) scale(1.02);
+}
+/* ===================================================== */
+/* ============ USERS PAGE UI UPGRADE =================== */
+/* ===================================================== */
+
+.page-header{
+    margin-bottom:20px;
+}
+
+.page-header p{
+    color:#6b7280;
+    font-size:14px;
+    margin-top:4px;
+}
+
+/* stats */
+.users-stats{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+    gap:16px;
+    margin-bottom:20px;
+}
+
+.mini-stat{
+    padding:18px;
+    border-radius:16px;
+    background:rgba(255,255,255,0.95);
+    text-align:center;
+    box-shadow:0 8px 25px rgba(0,0,0,0.12);
+    transition:0.2s;
+}
+
+.mini-stat:hover{
+    transform:translateY(-4px);
+}
+
+.mini-stat span{
+    font-size:12px;
+    color:#64748b;
+}
+
+.mini-stat h3{
+    margin-top:6px;
+    font-size:24px;
+    font-weight:bold;
+}
+
+/* colored stats */
+.mini-stat.pending{ background:#fff7ed; color:#ea580c; }
+.mini-stat.approved{ background:#ecfdf5; color:#16a34a; }
+.mini-stat.banned{ background:#fef2f2; color:#dc2626; }
+
+/* search card */
+.controls-card{
+    background:rgba(255,255,255,0.95);
+    padding:14px;
+    border-radius:14px;
+    margin-bottom:18px;
+    box-shadow:0 6px 18px rgba(0,0,0,0.1);
+}
+
+/* nicer inputs */
+.user-controls input,
+.user-controls select{
+    padding:10px 12px;
+    border-radius:8px;
+    border:1px solid #e5e7eb;
+}
+
+/* dark mode */
+body.dark-mode .mini-stat,
+body.dark-mode .controls-card{
+    background:#1f2937;
+    color:white;
+}
+/* ===================================================== */
+/* ============ APPROVE / DECLINE BUTTONS ============== */
+/* ===================================================== */
+
+.approve-btn,
+.decline-btn {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    color: white;
+    margin-right: 6px;
+    transition: 0.2s ease;
+}
+
+/* Green approve */
+.approve-btn {
+    background: #10b981;
+}
+
+.approve-btn:hover {
+    background: #059669;
+    transform: translateY(-2px);
+}
+
+/* Red decline */
+.decline-btn {
+    background: #ef4444;
+}
+
+.decline-btn:hover {
+    background: #dc2626;
+    transform: translateY(-2px);
+}
+
+/* Dark mode support */
+body.dark-mode .approve-btn {
+    background: #059669;
+}
+
+body.dark-mode .decline-btn {
+    background: #b91c1c;
+}
+/* dropdown */
+.action-dropdown{
+    position:relative;
+}
+
+.action-btn{
+    background:#0f172a;
+    color:white;
+    padding:6px 10px;
+    border-radius:6px;
+    border:none;
+    cursor:pointer;
+}
+
+.dropdown-menu{
+    display:none;
+    position:absolute;
+    background:white;
+    box-shadow:0 8px 20px rgba(0,0,0,0.15);
+    border-radius:8px;
+    top:32px;
+    right:0;
+    min-width:120px;
+    z-index:10;
+}
+
+.action-dropdown:hover .dropdown-menu{
+    display:block;
+}
+
+.dropdown-menu button,
+.dropdown-menu a{
+    display:block;
+    width:100%;
+    padding:8px 10px;
+    text-align:left;
+    background:none;
+    border:none;
+    cursor:pointer;
+    text-decoration:none;
+    color:#111;
+}
+
+/* modal */
+.modal{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.5);
+    justify-content:center;
+    align-items:center;
+}
+
+.modal-content{
+    background:white;
+    padding:25px;
+    border-radius:12px;
+    width:320px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+
+.modal-actions{
+    display:flex;
+    gap:10px;
+    margin-top:10px;
+}
+/* ===================================================== */
+/* ================= MODERN MODAL ====================== */
+/* ===================================================== */
+
+.modal{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(15,23,42,0.65);
+    backdrop-filter:blur(6px);
+    justify-content:center;
+    align-items:center;
+    z-index:9999;
+    animation:fadeIn .2s ease;
+}
+
+/* card */
+.modern-modal{
+    width:420px;
+    max-width:95%;
+    padding:28px;
+    border-radius:20px;
+
+    background:linear-gradient(145deg,#ffffff,#f8fafc);
+
+    box-shadow:
+        0 25px 60px rgba(0,0,0,0.35),
+        0 0 0 1px rgba(255,255,255,0.6);
+
+    animation:popIn .25s ease;
+}
+
+/* header */
+.modal-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:18px;
+}
+
+.modal-header h3{
+    font-size:20px;
+    font-weight:700;
+    color:#111827;
+}
+
+.modal-close{
+    cursor:pointer;
+    font-size:18px;
+    padding:4px 8px;
+    border-radius:6px;
+    transition:0.2s;
+}
+
+.modal-close:hover{
+    background:#f1f5f9;
+}
+
+/* form layout */
+.modal-form{
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+}
+
+.form-group{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+}
+
+.form-row{
+    display:flex;
+    gap:12px;
+}
+
+/* inputs */
+.modal-form input,
+.modal-form select{
+    padding:10px 12px;
+    border-radius:10px;
+    border:1px solid #e5e7eb;
+    background:#fff;
+    font-size:14px;
+    transition:0.2s;
+}
+
+.modal-form input:focus,
+.modal-form select:focus{
+    border-color:#ff6f00;
+    box-shadow:0 0 0 3px rgba(255,111,0,0.2);
+    outline:none;
+}
+
+/* buttons */
+.modal-actions{
+    display:flex;
+    gap:12px;
+    margin-top:10px;
+}
+
+.save-btn{
+    flex:1;
+    background:linear-gradient(135deg,#ff6f00,#ff8f00);
+    color:white;
+    border:none;
+    padding:12px;
+    border-radius:12px;
+    font-weight:bold;
+    cursor:pointer;
+    transition:0.2s;
+}
+
+.save-btn:hover{
+    transform:translateY(-2px);
+    box-shadow:0 6px 18px rgba(255,111,0,0.35);
+}
+
+.cancel-btn{
+    flex:1;
+    background:#e2e8f0;
+    border:none;
+    padding:12px;
+    border-radius:12px;
+    cursor:pointer;
+}
+
+/* animations */
+@keyframes fadeIn{
+    from{opacity:0;}
+    to{opacity:1;}
+}
+
+@keyframes popIn{
+    from{transform:scale(.9);opacity:0;}
+    to{transform:scale(1);opacity:1;}
+}
+/* ===================================================== */
+/* ============ MOBILE NAVBAR ( < 720px ) ============== */
+/* ===================================================== */
+
+@media (max-width: 720px) {
+
+    /* show hamburger */
+    .hamburger {
+        display: block;
+    }
+
+    /* stack menu vertically */
+    .nav-menu {
+        position: absolute;
+        top: 70px;
+        right: 0;
+        width: 200px;
+
+        background: #111827;
+
+        flex-direction: column;
+        gap: 0;
+
+        display: none; /* hidden by default */
+        padding: 10px 0;
+
+        box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        border-radius: 0 0 12px 12px;
+    }
+
+    /* show when toggled */
+    .nav-menu.active {
+        display: flex;
+    }
+
+    .nav-menu a {
+        padding: 12px 18px;
+        width: 100%;
+    }
+
+    .nav-menu a:hover {
+        background: #1f2937;
+    }
+
+    /* hide desktop spacing */
+    .admin-topbar {
+        padding: 0 20px;
+    }
+}
+
+/* ===================================================== */
+/* ================= RESPONSIVE ======================== */
+/* ===================================================== */
+
+/* ===================================================== */
+/* ============ USERS PAGE MOBILE FIX ================== */
+/* ===================================================== */
+
+@media (max-width: 720px) {
+
+    /* tighter content padding */
+    .admin-content {
+        padding: 18px;
+    }
+
+    /* ---------- STATS: 2 per row ---------- */
+    .users-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* ---------- SEARCH + FILTER STACK ---------- */
+    .user-controls {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .user-controls input,
+    .user-controls select {
+        width: 100%;
+    }
+
+    /* ---------- TABLE SCROLL (KEY FIX) ---------- */
+    .admin-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+        border-radius: 12px;
+    }
+
+    .admin-table table {
+        min-width: 650px; /* keeps layout clean */
+    }
+
+    /* smaller cell padding */
+    .admin-table th,
+    .admin-table td {
+        padding: 10px 12px;
+        font-size: 13px;
+        color: #111;
+    }
+
+    /* actions button smaller */
+    .action-btn {
+        padding: 5px 8px;
+        font-size: 12px;
+    }
+
+    /* dropdown position fix on mobile */
+    .dropdown-menu {
+        right: auto;
+        left: 0;
+    }
+}
+/* Tablets & medium screens */
+@media (max-width: 900px) {
+    .split-container {
+        flex-direction: column;
+        height: auto;
+    }
+
+    .left-panel {
+        height: 45vh;
+        text-align: center;
+        position: relative;
+        border-bottom-left-radius: 40px;
+        border-bottom-right-radius: 40px;
+        overflow: hidden;
+    }
+
+    .left-content h1 {
+        font-size: 30px;
+    }
+
+    .left-content p {
+        font-size: 15px;
+    }
+
+    .right-panel {
+        padding: 0 15px 30px;
+        background: linear-gradient(135deg, #ff6f00, #ff8f00, #ffc107);
+    }
+
+    .right-panel .container {
+        width: 90%;
+        border-radius: 25px 25px 0 0;
+        margin-top: 10px;
+        padding: 30px 20px;
+        box-shadow: 0 10px 35px rgba(0,0,0,0.15);
+    }
+}
+
+/* Small phones */
+@media (max-width: 480px) {
+    .right-panel .container {
+        margin-top: 20px;
+        padding: 25px 15px;
+    }
+
+    .left-content h1 {
+        font-size: 26px;
+    }
+
+    .left-content p {
+        font-size: 14px;
+    }
+}
+
+/* ===================================================== */
+/* ================= ANIMATIONS ======================== */
+/* ===================================================== */
+@keyframes gradientMove {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes gradientMoveText {
+    0% { background-position: 0%; }
+    100% { background-position: 300%; }
+}
