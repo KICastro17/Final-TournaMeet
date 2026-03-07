@@ -23,6 +23,7 @@ try {
     elseif (in_array('message', $cols)) $commentBodyCol = 'message';
     elseif (in_array('comment', $cols)) $commentBodyCol = 'comment';
     elseif (!in_array('body', $cols)) {
+        // Add body column if missing
         $pdo->exec("ALTER TABLE post_comments ADD COLUMN body TEXT NOT NULL DEFAULT ''");
     }
 } catch(Exception $e) {}
@@ -94,22 +95,6 @@ if ($method === 'POST' && $action === 'comment') {
         $me = $pdo->prepare("SELECT username, profile_pic FROM users WHERE id=?");
         $me->execute([$current_user_id]);
         $me = $me->fetch();
-
-        // ── NOTIFICATION: notify post owner ──
-        $owner = $pdo->prepare("SELECT user_id FROM posts WHERE id = ?");
-        $owner->execute([$post_id]);
-        $post_owner_id = (int)$owner->fetchColumn();
-
-        if ($post_owner_id && $post_owner_id !== $current_user_id) {
-            $pdo->prepare("
-                INSERT INTO user_notifications (user_id, type, message)
-                VALUES (?, 'comment', ?)
-            ")->execute([
-                $post_owner_id,
-                $me['username'] . ' commented: "' . mb_strimwidth($text, 0, 60, '…') . '"'
-            ]);
-        }
-        // ─────────────────────────────────────
 
         echo json_encode(['success'=>true, 'data'=>[
             'id'          => (int)$new_id,

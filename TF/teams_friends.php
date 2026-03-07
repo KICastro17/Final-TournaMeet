@@ -252,7 +252,7 @@
   <div class="nav-left">
     <button class="home-btn" onclick="window.location.href='/Tourna/Tournafinal/Tournameet/index.php'">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>
-      <span>HOME</span>
+      <span>Home</span>
     </button>
   </div>
   <div class="nav-search">
@@ -970,14 +970,12 @@ async function openPostModal(postId, store) {
   const caption = p.caption || p.content || '';
 
   // Use post_actions.php (same as profile.php) for reactions+comments
-  const POST_ACTIONS = './api/post_actions_proxy.php';
+  const POST_ACTIONS = '/Tourna/TF/api/post_actions_proxy.php';
   let reactions = [], comments = [], data_myReaction = null;
   try {
     const r    = await fetch(`${POST_ACTIONS}?action=load&post_id=${postId}`);
     const text = await r.text();
-    // Show raw response in modal body for debugging
-    document.getElementById('postModalBody').innerHTML =
-      `<pre style="font-size:10px;white-space:pre-wrap;padding:10px;color:#333;">${text.slice(0,500)}</pre>`;
+
     let d;
     try { d = JSON.parse(text); } catch(e) { console.error('post_actions parse error:', text.slice(0,200)); d = {}; }
     if (d.success) {
@@ -1085,7 +1083,7 @@ async function postModalLike(postId, btn) {
 }
 
 async function toggleReaction(postId, reactionKey, btn) {
-  const POST_ACTIONS = './api/post_actions_proxy.php';
+  const POST_ACTIONS = '/Tourna/TF/api/post_actions_proxy.php';
   const fd = new FormData();
   fd.append('action',   'react');
   fd.append('post_id',  postId);
@@ -1115,17 +1113,20 @@ async function submitComment() {
   // Optimistically clear input
   ta.value = ''; ta.style.height = 'auto';
 
-  const POST_ACTIONS = './api/post_actions_proxy.php';
+  const POST_ACTIONS = '/Tourna/TF/api/post_actions_proxy.php';
   let res;
   try {
     const fd = new FormData();
     fd.append('action',   'comment');
     fd.append('post_id',  activePostId);
     fd.append('comment',  body);  // profile.php uses 'comment' not 'body'
-    const r = await fetch(POST_ACTIONS, {method:'POST', body:fd});
-    res = await r.json();
+    const r    = await fetch(POST_ACTIONS, {method:'POST', body:fd});
+    const raw  = await r.text();
+    console.log('COMMENT RAW RESPONSE:', raw);
+    try { res = JSON.parse(raw); } catch(e) { alert('Parse error: ' + raw.slice(0,300)); return; }
   } catch(e) {
     console.error('Comment submit error:', e);
+    alert('Fetch error: ' + e.message);
     return;
   }
 

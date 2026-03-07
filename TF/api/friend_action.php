@@ -18,13 +18,6 @@ $action        = $body['action']        ?? '';
 $friend_id     = (int)($body['friend_id']     ?? 0);
 $friendship_id = (int)($body['friendship_id'] ?? 0);
 
-// Helper: get username by id
-function getUsername($pdo, $user_id) {
-    $s = $pdo->prepare("SELECT username FROM users WHERE id = ?");
-    $s->execute([$user_id]);
-    return $s->fetchColumn();
-}
-
 try {
     switch ($action) {
 
@@ -51,15 +44,6 @@ try {
                 INSERT INTO friendships (user_id, friend_id, status) VALUES (?, ?, 'pending')
             ");
             $stmt->execute([$current_user_id, $friend_id]);
-
-            // ── NOTIFICATION: notify the receiver of the friend request ──
-            $sender_username = getUsername($pdo, $current_user_id);
-            $pdo->prepare("
-                INSERT INTO user_notifications (user_id, type, message)
-                VALUES (?, 'friend_request', ?)
-            ")->execute([$friend_id, $sender_username . ' sent you a friend request.']);
-            // ─────────────────────────────────────────────────────────────
-
             echo json_encode(['success'=>true,'message'=>'Friend request sent']);
             break;
 
@@ -78,21 +62,6 @@ try {
             if ($stmt->rowCount() === 0) {
                 echo json_encode(['success'=>false,'error'=>'Request not found or already handled']);
             } else {
-                // ── NOTIFICATION: notify the sender that request was accepted ──
-                $accepter_username = getUsername($pdo, $current_user_id);
-                // Get the original sender (user_id in friendships)
-                $row = $pdo->prepare("SELECT user_id FROM friendships WHERE id = ?");
-                $row->execute([$friendship_id]);
-                $original_sender_id = (int)$row->fetchColumn();
-
-                if ($original_sender_id) {
-                    $pdo->prepare("
-                        INSERT INTO user_notifications (user_id, type, message)
-                        VALUES (?, 'friend_request', ?)
-                    ")->execute([$original_sender_id, $accepter_username . ' accepted your friend request. You are now connected!']);
-                }
-                // ──────────────────────────────────────────────────────────────
-
                 echo json_encode(['success'=>true,'message'=>'Friend request accepted']);
             }
             break;
