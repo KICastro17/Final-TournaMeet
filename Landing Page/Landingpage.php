@@ -73,7 +73,7 @@
     <div class="hero-content">
         <div class="hero-badge">
             <span class="badge-dot"></span>
-            Now in Beta &mdash; Join the Waitlist
+            Now in Beta &mdash; The platform for athletes, organizers, and communities to connect and compete.
         </div>
         <h1 class="hero-title">
          Where Athletes<br>
@@ -102,12 +102,12 @@
             </div>
             <div class="stat-divider"></div>
             <div class="stat">
-                <span class="stat-num">0</span><span class="stat-unit">+</span>
+                <span class="stat-num">5</span><span class="stat-unit">+</span>
                 <span class="stat-label">Athletes</span>
             </div>
             <div class="stat-divider"></div>
             <div class="stat">
-                <span class="stat-num">0</span><span class="stat-unit">+</span>
+                <span class="stat-num">1</span><span class="stat-unit">+</span>
                 <span class="stat-label">Communities</span>
             </div>
         </div>
@@ -332,7 +332,7 @@
         <div class="showcase-screen">
             <div class="screen-placeholder">
                 <span class="screen-icon">🤝</span>
-                <span>Teams & Friends Preview</span>
+                <span>Teams &amp; Friends Preview</span>
                 <span class="screen-sub">Screenshot or demo coming soon</span>
             </div>
         </div>
@@ -388,11 +388,11 @@
     </div>
 </section>
 
-<!-- ===== FOOTER ===== -->
+<!-- ===== FOOTER (unified) ===== -->
 <footer id="contact">
     <div class="footer-inner">
         <div class="footer-brand">
-            <a href="#" class="logo">
+            <a href="Landingpage.html" class="logo">
                 <img src="DARK ICON-Tournameet.png" alt="TournaMeet" class="logo-img logo-light">
                 <img src="LIGHT ICON-Tournameet.png" alt="TournaMeet" class="logo-img logo-dark">
                 <span class="logo-text">TournaMeet</span>
@@ -409,7 +409,7 @@
             <div class="footer-col">
                 <strong>Company</strong>
                 <a href="#about">About</a>
-                <a href="#">Blog</a>
+                <a href="story.html">Our Story</a>
                 <a href="#">Careers</a>
             </div>
             <div class="footer-col">
@@ -418,13 +418,19 @@
                 <a href="#">Instagram</a>
                 <a href="#">Discord</a>
             </div>
+            <div class="footer-col">
+                <strong>Legal</strong>
+                <a href="legal.html">Terms &amp; Conditions</a>
+                <a href="legal.html?doc=privacy">Privacy Policy</a>
+            </div>
         </div>
     </div>
     <div class="footer-bottom">
         <p>&copy; 2026 TournaMeet. All rights reserved.</p>
         <div class="footer-legal">
-            <a href="#">Privacy Policy</a>
-            <a href="#">Terms of Service</a>
+            <a href="story.html">Our Story</a>
+            <a href="legal.html?doc=privacy">Privacy Policy</a>
+            <a href="legal.html">Terms &amp; Conditions</a>
         </div>
     </div>
 </footer>

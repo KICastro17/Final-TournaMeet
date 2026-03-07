@@ -55,7 +55,7 @@ if ($result->num_rows == 1) {
     header("Location: admin_dashboard.php");
 } 
 elseif ($user['role'] === "organizer") {
-    header("Location: Organizer1/browse_tournaments.php");
+    header("Location: /Tourna/Organizer1/organizer_dashboard.php");
 } 
 else {
     header("Location: Tournafinal/Tournameet/index.php");
