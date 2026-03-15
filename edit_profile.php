@@ -210,9 +210,9 @@ $initials = substr($initials, 0, 2);
 
 <!-- NAV -->
 <nav>
-  <a href="index.php" class="nav-home">
+  <a href="/Tourna/profile.php" class="nav-home">
     <svg width="14" height="14" fill="white" viewBox="0 0 20 20"><path d="M10 2L2 9h2v9h5v-5h2v5h5V9h2L10 2z"/></svg>
-    HOME
+    BACK
   </a>
   <div class="search-bar">
     <input type="text" placeholder="Search tournaments...">

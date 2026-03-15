@@ -15,6 +15,20 @@ if (!$current_user_id) {
 $action  = $_POST['action'] ?? $_GET['action'] ?? '';
 $user_id = (int)$current_user_id;
 
+// ── Helper: insert notification (never crashes) ──
+function insertNotif($pdo, $recipient_id, $type, $message) {
+    if (!$recipient_id) return;
+    try {
+        $s = $pdo->prepare("
+            INSERT INTO user_notifications (user_id, type, message, is_read, created_at)
+            VALUES (?, ?, ?, 0, NOW())
+        ");
+        $s->execute([$recipient_id, $type, $message]);
+    } catch (Exception $e) {
+        error_log("insertNotif error: " . $e->getMessage());
+    }
+}
+
 // ── LOAD reactions + comments ──
 if ($action === 'load') {
     $post_id = (int)($_GET['post_id'] ?? 0);
@@ -80,6 +94,23 @@ if ($action === 'react') {
     } else {
         $pdo->prepare("INSERT IGNORE INTO post_reactions (post_id,user_id,reaction) VALUES (?,?,?)")->execute([$post_id,$user_id,$reaction]);
         $myReaction = $reaction;
+
+        // ── Notify post owner (only on new react, not on toggle off) ──
+        $emoji_map = ['like'=>'👍','love'=>'❤️','fire'=>'🔥','wow'=>'😮','haha'=>'😂'];
+        $emoji = $emoji_map[$reaction] ?? '';
+
+        // Get post owner + reactor username
+        $postRow = $pdo->prepare("SELECT user_id FROM posts WHERE id = ? LIMIT 1");
+        $postRow->execute([$post_id]);
+        $post_owner_id = (int)($postRow->fetchColumn() ?? 0);
+
+        // Don't notify yourself
+        if ($post_owner_id && $post_owner_id !== $user_id) {
+            $uRow = $pdo->prepare("SELECT username FROM users WHERE id = ? LIMIT 1");
+            $uRow->execute([$user_id]);
+            $reactor_name = $uRow->fetchColumn() ?: 'Someone';
+            insertNotif($pdo, $post_owner_id, 'like', "$reactor_name reacted $emoji to your post.");
+        }
     }
 
     $res = $pdo->prepare("SELECT reaction, COUNT(*) AS cnt FROM post_reactions WHERE post_id=? GROUP BY reaction");
@@ -101,9 +132,22 @@ if ($action === 'comment') {
     try {
         $pdo->prepare("INSERT INTO post_comments (post_id,user_id,comment) VALUES (?,?,?)")->execute([$post_id,$user_id,$comment]);
         $new_id = $pdo->lastInsertId();
-        $me = $pdo->prepare("SELECT username,profile_pic FROM users WHERE id=?");
+
+        $me = $pdo->prepare("SELECT username, profile_pic FROM users WHERE id = ?");
         $me->execute([$user_id]);
         $me = $me->fetch();
+
+        // ── Notify post owner ──
+        $postRow = $pdo->prepare("SELECT user_id FROM posts WHERE id = ? LIMIT 1");
+        $postRow->execute([$post_id]);
+        $post_owner_id = (int)($postRow->fetchColumn() ?? 0);
+
+        // Don't notify yourself
+        if ($post_owner_id && $post_owner_id !== $user_id) {
+            $commenter_name = $me['username'] ?? 'Someone';
+            insertNotif($pdo, $post_owner_id, 'comment', "$commenter_name commented on your post.");
+        }
+
         echo json_encode([
             'success'     => true,
             'comment_id'  => (int)$new_id,

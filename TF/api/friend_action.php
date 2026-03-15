@@ -18,6 +18,26 @@ $action        = $body['action']        ?? '';
 $friend_id     = (int)($body['friend_id']     ?? 0);
 $friendship_id = (int)($body['friendship_id'] ?? 0);
 
+// Helper: insert a notification
+function insertNotif($pdo, $user_id, $type, $message) {
+    try {
+        $s = $pdo->prepare("
+            INSERT INTO user_notifications (user_id, type, message, is_read, created_at)
+            VALUES (?, ?, ?, 0, NOW())
+        ");
+        $s->execute([$user_id, $type, $message]);
+    } catch (Exception $e) {
+        error_log("insertNotif failed: " . $e->getMessage());
+    }
+}
+
+// Helper: get username
+function getUsername($pdo, $user_id) {
+    $s = $pdo->prepare("SELECT username FROM users WHERE id = ? LIMIT 1");
+    $s->execute([$user_id]);
+    return $s->fetchColumn() ?: 'Someone';
+}
+
 try {
     switch ($action) {
 
@@ -44,6 +64,11 @@ try {
                 INSERT INTO friendships (user_id, friend_id, status) VALUES (?, ?, 'pending')
             ");
             $stmt->execute([$current_user_id, $friend_id]);
+
+            // ── Notify recipient ──
+            $sender_name = getUsername($pdo, $current_user_id);
+            insertNotif($pdo, $friend_id, 'friend_request', "$sender_name sent you a friend request.");
+
             echo json_encode(['success'=>true,'message'=>'Friend request sent']);
             break;
 
@@ -52,7 +77,12 @@ try {
             if (!$friendship_id) {
                 echo json_encode(['success'=>false,'error'=>'Invalid request']); exit;
             }
-            // Make sure current user is the receiver
+
+            // Get the sender's id before updating
+            $fRow = $pdo->prepare("SELECT user_id FROM friendships WHERE id=? AND friend_id=? AND status='pending'");
+            $fRow->execute([$friendship_id, $current_user_id]);
+            $fData = $fRow->fetch();
+
             $stmt = $pdo->prepare("
                 UPDATE friendships SET status='accepted'
                 WHERE id=? AND friend_id=? AND status='pending'
@@ -62,6 +92,11 @@ try {
             if ($stmt->rowCount() === 0) {
                 echo json_encode(['success'=>false,'error'=>'Request not found or already handled']);
             } else {
+                // ── Notify the original sender that request was accepted ──
+                if ($fData) {
+                    $accepter_name = getUsername($pdo, $current_user_id);
+                    insertNotif($pdo, $fData['user_id'], 'friend_request', "$accepter_name accepted your friend request.");
+                }
                 echo json_encode(['success'=>true,'message'=>'Friend request accepted']);
             }
             break;

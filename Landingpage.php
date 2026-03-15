@@ -73,7 +73,7 @@
     <div class="hero-content">
         <div class="hero-badge">
             <span class="badge-dot"></span>
-            Now in Beta &mdash; Join the Waitlist
+            Now in Beta &mdash; The platform for athletes, organizers, and communities to connect and compete.
         </div>
         <h1 class="hero-title">
          Where Athletes<br>
@@ -88,7 +88,7 @@
             empower competitors, and elevate competitive experiences worldwide.
         </p>
         <div class="hero-buttons">
-            <a href="#" class="btn-primary">
+            <a href="register.php" class="btn-primary">
                 Get Started
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             </a>
@@ -102,12 +102,12 @@
             </div>
             <div class="stat-divider"></div>
             <div class="stat">
-                <span class="stat-num">0</span><span class="stat-unit">+</span>
+                <span class="stat-num">5</span><span class="stat-unit">+</span>
                 <span class="stat-label">Athletes</span>
             </div>
             <div class="stat-divider"></div>
             <div class="stat">
-                <span class="stat-num">0</span><span class="stat-unit">+</span>
+                <span class="stat-num">1</span><span class="stat-unit">+</span>
                 <span class="stat-label">Communities</span>
             </div>
         </div>
@@ -220,10 +220,7 @@
             </ul>
         </div>
         <div class="showcase-screen">
-            <div class="screen-placeholder">
-                <span class="screen-icon">🏠</span>
-                <span>Dashboard Preview</span>
-                <span class="screen-sub">Screenshot or demo coming soon</span>
+                <img src="Dashboard.png" alt="Dashboard Preview" style="width:100%; height:100%; object-fit:cover; border-radius: inherit;">
             </div>
         </div>
     </div>
@@ -242,10 +239,7 @@
             </ul>
         </div>
         <div class="showcase-screen">
-            <div class="screen-placeholder">
-                <span class="screen-icon">💬</span>
-                <span>Chat Interface Preview</span>
-                <span class="screen-sub">Screenshot or demo coming soon</span>
+                <img src="Chats.png" alt="Chats Preview" style="width:100%; height:100%; object-fit:cover; border-radius: inherit;">
             </div>
         </div>
     </div>
@@ -264,10 +258,7 @@
             </ul>
         </div>
         <div class="showcase-screen">
-            <div class="screen-placeholder">
-                <span class="screen-icon">🛒</span>
-                <span>Shop Preview</span>
-                <span class="screen-sub">Screenshot or demo coming soon</span>
+                <img src="Shop.png" alt="Shop Preview" style="width:100%; height:100%; object-fit:cover; border-radius: inherit;">
             </div>
         </div>
     </div>
@@ -286,10 +277,7 @@
             </ul>
         </div>
         <div class="showcase-screen">
-            <div class="screen-placeholder">
-                <span class="screen-icon">🗺️</span>
-                <span>Tournament Finder Preview</span>
-                <span class="screen-sub">Screenshot or demo coming soon</span>
+                <img src="Map.png" alt="Map Preview" style="width:100%; height:100%; object-fit:cover; border-radius: inherit;">
             </div>
         </div>
     </div>
@@ -308,10 +296,7 @@
             </ul>
         </div>
         <div class="showcase-screen">
-            <div class="screen-placeholder">
-                <span class="screen-icon">📣</span>
-                <span>Community Feed Preview</span>
-                <span class="screen-sub">Screenshot or demo coming soon</span>
+                <img src="ComPost.png" alt="Community Posts Preview" style="width:100%; height:100%; object-fit:cover; border-radius: inherit;">
             </div>
         </div>
     </div>
@@ -330,10 +315,7 @@
             </ul>
         </div>
         <div class="showcase-screen">
-            <div class="screen-placeholder">
-                <span class="screen-icon">🤝</span>
-                <span>Teams & Friends Preview</span>
-                <span class="screen-sub">Screenshot or demo coming soon</span>
+                <img src="TF.png" alt="Teams and Friends Preview" style="width:100%; height:100%; object-fit:cover; border-radius: inherit;">
             </div>
         </div>
     </div>
@@ -379,7 +361,7 @@
         <h2>Start Building<br>Opportunities <em>Today</em></h2>
         <p>No account fees. Set up your first tournament in under 5 minutes.</p>
         <div class="cta-actions">
-            <a href="register.php" class="btn-primary large">
+            <a href="#" class="btn-primary large">
                 Create Free Account
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             </a>
@@ -388,11 +370,11 @@
     </div>
 </section>
 
-<!-- ===== FOOTER ===== -->
+<!-- ===== FOOTER (unified) ===== -->
 <footer id="contact">
     <div class="footer-inner">
         <div class="footer-brand">
-            <a href="#" class="logo">
+            <a href="Landingpage.php" class="logo">
                 <img src="DARK ICON-Tournameet.png" alt="TournaMeet" class="logo-img logo-light">
                 <img src="LIGHT ICON-Tournameet.png" alt="TournaMeet" class="logo-img logo-dark">
                 <span class="logo-text">TournaMeet</span>
@@ -409,7 +391,7 @@
             <div class="footer-col">
                 <strong>Company</strong>
                 <a href="#about">About</a>
-                <a href="#">Blog</a>
+                <a href="story.html">Our Story</a>
                 <a href="#">Careers</a>
             </div>
             <div class="footer-col">
@@ -418,13 +400,19 @@
                 <a href="#">Instagram</a>
                 <a href="#">Discord</a>
             </div>
+            <div class="footer-col">
+                <strong>Legal</strong>
+                <a href="legal.html">Terms &amp; Conditions</a>
+                <a href="legal.html?doc=privacy">Privacy Policy</a>
+            </div>
         </div>
     </div>
     <div class="footer-bottom">
         <p>&copy; 2026 TournaMeet. All rights reserved.</p>
         <div class="footer-legal">
-            <a href="#">Privacy Policy</a>
-            <a href="#">Terms of Service</a>
+            <a href="story.html">Our Story</a>
+            <a href="legal.html?doc=privacy">Privacy Policy</a>
+            <a href="legal.html">Terms &amp; Conditions</a>
         </div>
     </div>
 </footer>

@@ -28,6 +28,7 @@ $openWith = (int)($_GET['with'] ?? 0);
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Messages – Tournameet</title>
+  <link rel="icon" type="image/png" href="/Tourna/favicon.png">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet"/>
 <style>
 :root{
@@ -82,8 +83,36 @@ nav{height:58px;background:#fff;border-bottom:2px solid var(--orange);display:fl
 .messages-wrap{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:6px;background:var(--bg);}
 .messages-wrap::-webkit-scrollbar{width:4px;}
 .messages-wrap::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
-.msg-row{display:flex;align-items:flex-end;gap:8px;width:100%;}
+
+/* MSG ROW with action buttons */
+.msg-row{display:flex;align-items:flex-end;gap:8px;width:100%;position:relative;}
 .msg-row.mine{flex-direction:row-reverse;}
+
+/* Action buttons that appear on hover */
+.msg-actions{
+  display:flex;
+  gap:4px;
+  align-items:center;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .18s;
+  flex-shrink:0;
+  order:2;
+}
+.msg-row.mine .msg-actions{order:0; flex-direction:row-reverse;}
+.msg-row:hover .msg-actions{opacity:1;pointer-events:auto;}
+.msg-action-btn{
+  width:26px;height:26px;border-radius:50%;
+  background:#fff;border:1.5px solid var(--border);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:background .15s,border-color .15s,transform .1s;
+  color:var(--muted);
+  box-shadow:0 1px 4px rgba(0,0,0,.08);
+}
+.msg-action-btn:hover{background:var(--orange-light);border-color:var(--orange);color:var(--orange);transform:scale(1.1);}
+.msg-action-btn.unsend-btn:hover{background:#FDECEA;border-color:#E53935;color:#E53935;}
+.msg-action-btn svg{width:12px;height:12px;}
+
 .msg-av{width:28px;height:28px;border-radius:50%;background:var(--orange-light);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:.65rem;color:var(--orange);flex-shrink:0;overflow:hidden;position:relative;}
 .msg-av img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:50%;}
 .msg-col{display:flex;flex-direction:column;max-width:65%;min-width:0;}
@@ -92,8 +121,44 @@ nav{height:58px;background:#fff;border-bottom:2px solid var(--orange);display:fl
 .msg-bubble{display:inline-block;padding:9px 14px;border-radius:18px;font-size:.88rem;line-height:1.5;word-wrap:break-word;overflow-wrap:break-word;white-space:pre-wrap;max-width:100%;}
 .msg-row.theirs .msg-bubble{background:#fff;color:var(--text);border-bottom-left-radius:4px;box-shadow:0 1px 4px rgba(0,0,0,.06);}
 .msg-row.mine   .msg-bubble{background:var(--orange);color:#fff;border-bottom-right-radius:4px;}
-.msg-time{font-size:.65rem;color:var(--muted);margin-top:3px;padding:0 2px;}
+.msg-time{font-size:.65rem;color:var(--muted);margin-top:3px;padding:0 2px;display:flex;align-items:center;gap:4px;}
+.msg-edited-tag{font-size:.6rem;color:var(--muted);font-style:italic;}
 .date-divider{text-align:center;font-size:.72rem;color:var(--muted);margin:8px 0;font-weight:600;letter-spacing:.04em;text-transform:uppercase;}
+
+/* Unsent message style */
+.msg-unsent .msg-bubble{
+  background:transparent !important;
+  border:1.5px dashed var(--border);
+  color:var(--muted) !important;
+  font-style:italic;
+  font-size:.8rem;
+  box-shadow:none;
+}
+.msg-unsent .msg-av{opacity:.4;}
+
+/* INLINE EDIT */
+.msg-edit-wrap{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  background:#fff;
+  border:1.5px solid var(--orange);
+  border-radius:18px;
+  padding:6px 10px;
+  max-width:380px;
+  box-shadow:0 2px 12px rgba(240,123,32,.15);
+}
+.msg-edit-input{
+  flex:1;border:none;outline:none;
+  font-family:'Barlow',sans-serif;font-size:.88rem;
+  background:transparent;color:var(--text);
+  resize:none;max-height:80px;line-height:1.4;
+}
+.msg-edit-save{width:28px;height:28px;border-radius:50%;background:var(--orange);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s;}
+.msg-edit-save:hover{background:#d96a10;}
+.msg-edit-save svg{width:12px;height:12px;fill:#fff;}
+.msg-edit-cancel{width:28px;height:28px;border-radius:50%;background:var(--bg);border:1.5px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--muted);font-size:12px;transition:background .15s;}
+.msg-edit-cancel:hover{background:#FDECEA;border-color:#E53935;color:#E53935;}
 
 /* MEDIA MESSAGES */
 .msg-media{max-width:260px;border-radius:14px;overflow:hidden;cursor:pointer;display:block;}
@@ -109,6 +174,18 @@ nav{height:58px;background:#fff;border-bottom:2px solid var(--orange);display:fl
 .media-lb.open{display:flex;}
 .media-lb img,.media-lb video{max-width:92vw;max-height:92vh;border-radius:10px;object-fit:contain;}
 .media-lb-close{position:absolute;top:20px;right:24px;color:#fff;font-size:28px;cursor:pointer;background:none;border:none;line-height:1;}
+
+/* CONFIRM DIALOG */
+.confirm-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:500;display:none;align-items:center;justify-content:center;}
+.confirm-overlay.open{display:flex;}
+.confirm-box{background:#fff;border-radius:18px;padding:24px 28px;max-width:320px;width:90%;box-shadow:0 16px 48px rgba(0,0,0,.2);}
+.confirm-box h3{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:1.1rem;text-transform:uppercase;margin-bottom:8px;color:var(--text);}
+.confirm-box p{font-size:.85rem;color:var(--muted);line-height:1.5;margin-bottom:20px;}
+.confirm-btns{display:flex;gap:10px;justify-content:flex-end;}
+.confirm-cancel{padding:8px 18px;border-radius:10px;background:var(--bg);border:1.5px solid var(--border);font-family:'Barlow',sans-serif;font-weight:600;font-size:.85rem;cursor:pointer;transition:background .15s;}
+.confirm-cancel:hover{background:var(--border);}
+.confirm-delete{padding:8px 18px;border-radius:10px;background:#E53935;border:none;color:#fff;font-family:'Barlow',sans-serif;font-weight:600;font-size:.85rem;cursor:pointer;transition:background .15s;}
+.confirm-delete:hover{background:#c62828;}
 
 /* INPUT AREA */
 .chat-input-area{background:#fff;border-top:1.5px solid var(--border);flex-shrink:0;}
@@ -159,7 +236,7 @@ nav{height:58px;background:#fff;border-bottom:2px solid var(--orange);display:fl
 <body>
 
 <nav>
-  <button class="home-btn" onclick="location.href='/Tourna/Tournafinal/Tournameet/index.php'">
+  <button class="home-btn" onclick="location.href='/Tourna/NewsFeed/newsfeed.php'">
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>
     HOME
   </button>
@@ -249,6 +326,18 @@ nav{height:58px;background:#fff;border-bottom:2px solid var(--orange);display:fl
   <div id="mediaLbContent"></div>
 </div>
 
+<!-- Unsend confirm dialog -->
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <h3>Unsend Message?</h3>
+    <p>This message will be removed for everyone in the chat. This cannot be undone.</p>
+    <div class="confirm-btns">
+      <button class="confirm-cancel" onclick="closeConfirm()">Cancel</button>
+      <button class="confirm-delete" id="confirmDeleteBtn">Unsend</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -264,6 +353,7 @@ let lastMsgId     = 0;
 let pollTimer     = null;
 let allFriends    = [];
 let pendingFiles  = [];
+let pendingUnsendId = null;
 
 // ── EMOJI DATA ──
 const EMOJI_CATS = [
@@ -348,8 +438,13 @@ function msgHTML(m) {
   const avInit  = mine ? MY_INIT : esc((activeFriend.initials||activeFriend.username.substring(0,2)).toUpperCase());
   const avHtml  = avSrc ? `<img src="${esc(avSrc)}" onerror="this.style.display='none'">` : avInit;
 
+  const isUnsent = m.is_deleted == 1 || m.unsent == 1;
+  const isEdited = m.is_edited == 1 || m.edited == 1;
+
   let content = '';
-  if (m.media_url) {
+  if (isUnsent) {
+    content = `<div class="msg-bubble">Message unsent</div>`;
+  } else if (m.media_url) {
     if (m.media_type === 'video') {
       content = `<div class="msg-media" onclick="openLb('video','${esc(m.media_url)}')">
         <video src="${esc(m.media_url)}" muted playsinline preload="metadata"></video>
@@ -364,9 +459,27 @@ function msgHTML(m) {
     content = `<div class="msg-bubble">${escHtml(m.body)}</div>`;
   }
 
-  return `<div class="msg-row ${mine?'mine':'theirs'}">
+  const editedTag = isEdited && !isUnsent ? `<span class="msg-edited-tag">edited</span>` : '';
+  const timeHtml  = `<div class="msg-time">${timeStr}${editedTag}</div>`;
+
+  // Action buttons — only show for own non-unsent messages
+  let actionBtns = '';
+  if (mine && !isUnsent) {
+    const canEdit = !m.media_url; // only text messages can be edited
+    actionBtns = `<div class="msg-actions">
+      ${canEdit ? `<button class="msg-action-btn edit-btn" title="Edit" onclick="startEdit(${m.id}, this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      </button>` : ''}
+      <button class="msg-action-btn unsend-btn" title="Unsend" onclick="confirmUnsend(${m.id})">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+      </button>
+    </div>`;
+  }
+
+  return `<div class="msg-row ${mine?'mine':'theirs'} ${isUnsent?'msg-unsent':''}" data-msg-id="${m.id}">
     <div class="msg-av">${avHtml}</div>
-    <div class="msg-col">${content}<div class="msg-time">${timeStr}</div></div>
+    <div class="msg-col">${content}${timeHtml}</div>
+    ${actionBtns}
   </div>`;
 }
 
@@ -402,10 +515,7 @@ async function pollMessages() {
 // ── SEND TEXT ──
 async function sendMessage() {
   if (!activeFriend) return;
-
-  // If there are pending files, send them first
   if (pendingFiles.length) { await sendMediaFiles(); return; }
-
   const inp  = document.getElementById('msgInput');
   const body = inp.value.trim();
   if (!body) return;
@@ -437,12 +547,10 @@ async function sendMediaFiles() {
   for (let i = 0; i < pendingFiles.length; i++) {
     const file = pendingFiles[i];
     bar.style.width = Math.round(((i) / pendingFiles.length) * 100) + '%';
-
     const fd = new FormData();
     fd.append('media', file);
     fd.append('to', activeFriend.id);
     if (i === 0 && body) fd.append('body', body);
-
     try {
       const r    = await fetch(UPLOAD_API, {method:'POST', body:fd});
       const data = await r.json();
@@ -464,17 +572,127 @@ async function sendMediaFiles() {
   loadFriends();
 }
 
+// ── UNSEND ──
+function confirmUnsend(msgId) {
+  pendingUnsendId = msgId;
+  document.getElementById('confirmOverlay').classList.add('open');
+  document.getElementById('confirmDeleteBtn').onclick = () => doUnsend(msgId);
+}
+
+function closeConfirm() {
+  document.getElementById('confirmOverlay').classList.remove('open');
+  pendingUnsendId = null;
+}
+
+async function doUnsend(msgId) {
+  closeConfirm();
+  const res = await callApi('', {action: 'unsend', message_id: msgId});
+  if (res.success) {
+    // Update the message row in-place
+    const row = document.querySelector(`.msg-row[data-msg-id="${msgId}"]`);
+    if (row) {
+      row.classList.add('msg-unsent');
+      const col = row.querySelector('.msg-col');
+      if (col) {
+        col.querySelector('.msg-bubble') && (col.querySelector('.msg-bubble').textContent = 'Message unsent');
+        col.querySelector('.msg-media') && col.querySelector('.msg-media').remove();
+      }
+      row.querySelector('.msg-actions')?.remove();
+    }
+    loadFriends();
+    toast('Message unsent');
+  } else {
+    toast(res.message || 'Could not unsend message');
+  }
+}
+
+// ── EDIT ──
+function startEdit(msgId, btnEl) {
+  // Cancel any existing edit
+  document.querySelectorAll('.msg-edit-wrap').forEach(el => cancelEditNode(el));
+
+  const row = document.querySelector(`.msg-row[data-msg-id="${msgId}"]`);
+  if (!row) return;
+  const col    = row.querySelector('.msg-col');
+  const bubble = col.querySelector('.msg-bubble');
+  if (!bubble) return;
+
+  const originalText = bubble.textContent;
+
+  // Replace bubble with inline editor
+  bubble.style.display = 'none';
+  const editWrap = document.createElement('div');
+  editWrap.className = 'msg-edit-wrap';
+  editWrap.dataset.originalText = originalText;
+  editWrap.dataset.msgId = msgId;
+  editWrap.innerHTML = `
+    <textarea class="msg-edit-input" rows="1">${esc(originalText)}</textarea>
+    <button class="msg-edit-cancel" title="Cancel" onclick="cancelEdit(${msgId})">✕</button>
+    <button class="msg-edit-save" title="Save" onclick="saveEdit(${msgId})">
+      <svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+    </button>`;
+  col.insertBefore(editWrap, bubble);
+
+  const textarea = editWrap.querySelector('.msg-edit-input');
+  autoResize(textarea);
+  textarea.addEventListener('input', () => autoResize(textarea));
+  textarea.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); saveEdit(msgId); }
+    if (e.key === 'Escape') cancelEdit(msgId);
+  });
+  textarea.focus();
+  textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+}
+
+function cancelEditNode(editWrap) {
+  const msgId = editWrap.dataset.msgId;
+  const row   = document.querySelector(`.msg-row[data-msg-id="${msgId}"]`);
+  if (!row) return;
+  const bubble = row.querySelector('.msg-bubble');
+  if (bubble) bubble.style.display = '';
+  editWrap.remove();
+}
+
+function cancelEdit(msgId) {
+  const editWrap = document.querySelector(`.msg-edit-wrap[data-msg-id="${msgId}"]`);
+  if (editWrap) cancelEditNode(editWrap);
+}
+
+async function saveEdit(msgId) {
+  const editWrap = document.querySelector(`.msg-edit-wrap[data-msg-id="${msgId}"]`);
+  if (!editWrap) return;
+  const newBody = editWrap.querySelector('.msg-edit-input').value.trim();
+  if (!newBody) { toast('Message cannot be empty'); return; }
+
+  const res = await callApi('', {action: 'edit', message_id: msgId, body: newBody});
+  if (res.success) {
+    const row    = document.querySelector(`.msg-row[data-msg-id="${msgId}"]`);
+    const bubble = row?.querySelector('.msg-bubble');
+    if (bubble) {
+      bubble.innerHTML = escHtml(newBody);
+      bubble.style.display = '';
+    }
+    // Add/update edited tag in time row
+    const timeEl = row?.querySelector('.msg-time');
+    if (timeEl && !timeEl.querySelector('.msg-edited-tag')) {
+      timeEl.insertAdjacentHTML('beforeend', `<span class="msg-edited-tag">edited</span>`);
+    }
+    editWrap.remove();
+    toast('Message updated');
+  } else {
+    toast(res.message || 'Could not edit message');
+  }
+}
+
 // ── MEDIA PICKER ──
 document.getElementById('mediaBtn').addEventListener('click', () => {
   document.getElementById('mediaInput').click();
 });
-
 document.getElementById('mediaInput').addEventListener('change', function() {
   Array.from(this.files).forEach(f => pendingFiles.push(f));
   this.value = '';
   renderMediaPreviews();
 });
-
 function renderMediaPreviews() {
   const bar = document.getElementById('mediaPreviewBar');
   if (!pendingFiles.length) { bar.classList.remove('has-files'); bar.innerHTML = ''; return; }
@@ -482,20 +700,11 @@ function renderMediaPreviews() {
   bar.innerHTML = pendingFiles.map((f, i) => {
     const isVideo = f.type.startsWith('video/');
     const url = URL.createObjectURL(f);
-    const media = isVideo
-      ? `<video src="${url}" muted playsinline></video>`
-      : `<img src="${url}" alt="">`;
-    return `<div class="mp-thumb">
-      ${media}
-      <button class="mp-remove" onclick="removePending(${i})">✕</button>
-    </div>`;
+    const media = isVideo ? `<video src="${url}" muted playsinline></video>` : `<img src="${url}" alt="">`;
+    return `<div class="mp-thumb">${media}<button class="mp-remove" onclick="removePending(${i})">✕</button></div>`;
   }).join('');
 }
-
-function removePending(idx) {
-  pendingFiles.splice(idx, 1);
-  renderMediaPreviews();
-}
+function removePending(idx) { pendingFiles.splice(idx, 1); renderMediaPreviews(); }
 
 // ── MEDIA LIGHTBOX ──
 function openLb(type, src) {
@@ -512,25 +721,23 @@ function closeLb() {
   document.getElementById('mediaLbContent').innerHTML = '';
 }
 
+// ── CONFIRM OVERLAY CLOSE ON BG CLICK ──
+document.getElementById('confirmOverlay').addEventListener('click', function(e) {
+  if (e.target === this) closeConfirm();
+});
+
 // ── EMOJI PICKER ──
 (function initEmoji() {
   const tabs = document.getElementById('emojiTabs');
   const grid = document.getElementById('emojiGrid');
-  let activeTab = 0;
-
   function renderTab(idx) {
-    activeTab = idx;
     grid.innerHTML = EMOJI_CATS[idx].emojis.map(e =>
-      `<button class="emoji-btn" onclick="insertEmoji('${e}')">${e}</button>`
-    ).join('');
+      `<button class="emoji-btn" onclick="insertEmoji('${e}')">${e}</button>`).join('');
     document.querySelectorAll('.emoji-tab').forEach((t,i) => t.classList.toggle('active', i===idx));
   }
-
   tabs.innerHTML = EMOJI_CATS.map((c,i) =>
-    `<button class="emoji-tab ${i===0?'active':''}" onclick="emojiTabClick(${i})">${c.label}</button>`
-  ).join('');
+    `<button class="emoji-tab ${i===0?'active':''}" onclick="emojiTabClick(${i})">${c.label}</button>`).join('');
   renderTab(0);
-
   window.emojiTabClick = function(idx) { renderTab(idx); };
 })();
 
@@ -539,26 +746,21 @@ document.getElementById('emojiBtn').addEventListener('click', e => {
   document.getElementById('emojiPanel').classList.toggle('open');
 });
 document.addEventListener('click', e => {
-  if (!e.target.closest('.emoji-picker-wrap')) {
-    document.getElementById('emojiPanel').classList.remove('open');
-  }
+  if (!e.target.closest('.emoji-picker-wrap')) document.getElementById('emojiPanel').classList.remove('open');
 });
-
 function insertEmoji(emoji) {
   const inp = document.getElementById('msgInput');
   const pos = inp.selectionStart;
   inp.value = inp.value.slice(0, pos) + emoji + inp.value.slice(pos);
   inp.selectionStart = inp.selectionEnd = pos + emoji.length;
-  inp.focus();
-  autoResize(inp);
+  inp.focus(); autoResize(inp);
 }
 
 // ── KEY HANDLER ──
 function handleKey(e) {
   if (e.key === 'Enter' && !e.shiftKey) {
     e.preventDefault();
-    if (pendingFiles.length) sendMediaFiles();
-    else sendMessage();
+    if (pendingFiles.length) sendMediaFiles(); else sendMessage();
   }
 }
 

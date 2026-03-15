@@ -46,22 +46,19 @@ if ($result->num_rows == 1) {
         }
 
         /* ================= LOGIN SUCCESS ================= */
-        $_SESSION['user_id']  = $user['id'];
-        $_SESSION['username'] = $user['username'];
-        $_SESSION['role']     = $user['role'];
+        $_SESSION['user_id']         = $user['id'];
+        $_SESSION['username']        = $user['username'];
+        $_SESSION['role']            = $user['role'];
+        $_SESSION['profile_pic']  = $user['profile_pic'] ?? '';  // ← matches users.profile_pic column
 
         /* ================= ROLE REDIRECT ================= */
         if ($user['role'] === "admin") {
-    header("Location: admin_dashboard.php");
-} 
-elseif ($user['role'] === "organizer") {
-    header("Location: /Tourna/Organizer1/organizer_dashboard.php");
-} 
-else {
-    header("Location: Tournafinal/Tournameet/index.php");
-}
-exit();
-
+            header("Location: admin_dashboard.php");
+        } elseif ($user['role'] === "organizer") {
+            header("Location: Organizer/organizer_index.php");
+        } else {
+            header("Location: /Tourna/NewsFeed/newsfeed.php");
+        }
         exit();
 
     } else {

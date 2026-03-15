@@ -114,7 +114,8 @@ $member_since = date('Y', strtotime($user['created_at']));
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ball Sports – Profile</title>
+  <link rel="icon" type="image/png" href="favicon.png">
+  <title>Profile</title>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="profile-tab.css">
 </head>
@@ -171,11 +172,11 @@ $member_since = date('Y', strtotime($user['created_at']));
 
 <!-- NAV -->
 <nav>
-  <a href="Tournafinal/Tournameet/index.php" class="nav-home">
+  <a href="/Tourna/NewsFeed/newsfeed.php" class="nav-home">
   <svg width="14" height="14" fill="white" viewBox="0 0 20 20">
     <path d="M10 2L2 9h2v9h5v-5h2v5h5V9h2L10 2z"/>
   </svg>
-  HOME
+  BACK
 </a>
   <div class="search-bar">
     <input type="text" placeholder="Search tournaments...">
@@ -1555,6 +1556,7 @@ function formatDate(str) {
   try { return new Date(str).toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'}); }
   catch(e) { return str; }
 }
+
 </script>
 
 <script src="profile-tab.js"></script>
@@ -1563,5 +1565,24 @@ function formatDate(str) {
     <div class="location-hint">Start typing to search...</div>
   </div>
 </div>
+<script>
+  // Find your home/back button and update it
+  document.addEventListener('DOMContentLoaded', function() {
+    const homeBtn = document.getElementById('home-btn'); // or whatever your button ID is
+    if (homeBtn) {
+      homeBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        const params = new URLSearchParams(window.location.search);
+        const redirect = params.get('redirect');
+        
+        if (redirect === 'organizer') {
+          window.location.href = '/Tourna/organizer_dashboard.php';
+        } else {
+          window.location.href = '/Tourna/athlete_dashboard.php';
+        }
+      });
+    }
+  });
+</script>
 </body>
 </html>

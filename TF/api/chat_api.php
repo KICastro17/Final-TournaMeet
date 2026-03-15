@@ -23,19 +23,20 @@ $pdo->exec("
     )
 ");
 
-// Add media columns if upgrading from older install
+// Add columns if upgrading from older install
 try { $pdo->exec("ALTER TABLE messages ADD COLUMN media_url VARCHAR(500) DEFAULT NULL"); } catch(Exception $e){}
 try { $pdo->exec("ALTER TABLE messages ADD COLUMN media_type ENUM('image','video') DEFAULT NULL"); } catch(Exception $e){}
+try { $pdo->exec("ALTER TABLE messages ADD COLUMN is_deleted TINYINT(1) DEFAULT 0"); } catch(Exception $e){}
+try { $pdo->exec("ALTER TABLE messages ADD COLUMN is_edited TINYINT(1) DEFAULT 0"); } catch(Exception $e){}
 
-$me     = $current_user_id;
-$get    = $_GET['action']  ?? '';
+$me      = $current_user_id;
+$get     = $_GET['action']  ?? '';
 $rawBody = file_get_contents('php://input');
-$body   = json_decode($rawBody, true) ?: [];
-$action = $get ?: ($body['action'] ?? '');
+$body    = json_decode($rawBody, true) ?: [];
+$action  = $get ?: ($body['action'] ?? '');
 
 // GET: friends list with last message + unread count
 if ($action === 'friends') {
-    // Guard: friendships table must exist
     $hasFriendships = (bool)$pdo->query("SHOW TABLES LIKE 'friendships'")->rowCount();
     if (!$hasFriendships) {
         echo json_encode(['success'=>true,'data'=>[]]);
@@ -69,7 +70,6 @@ if ($action === 'friends') {
     $friends = $stmt->fetchAll();
     foreach ($friends as &$f) {
         if ($f['profile_pic'] && !str_starts_with($f['profile_pic'],'http')) {
-            // Root-relative so it works from any subfolder in the browser
             $f['profile_pic'] = '/Tourna/uploads' . $f['profile_pic'];
         }
         $f['unread'] = (int)$f['unread'];
@@ -85,7 +85,7 @@ if ($action === 'messages') {
     $pdo->prepare("UPDATE messages SET is_read=1 WHERE sender_id=? AND receiver_id=? AND is_read=0")
         ->execute([$with,$me]);
     $stmt = $pdo->prepare("
-        SELECT id,sender_id,body,media_url,media_type,created_at
+        SELECT id, sender_id, body, media_url, media_type, is_deleted, is_edited, created_at
         FROM messages
         WHERE (sender_id=? AND receiver_id=?) OR (sender_id=? AND receiver_id=?)
         ORDER BY created_at ASC LIMIT 100
@@ -103,7 +103,7 @@ if ($action === 'poll') {
     $pdo->prepare("UPDATE messages SET is_read=1 WHERE sender_id=? AND receiver_id=? AND is_read=0")
         ->execute([$with,$me]);
     $stmt = $pdo->prepare("
-        SELECT id,sender_id,body,media_url,media_type,created_at
+        SELECT id, sender_id, body, media_url, media_type, is_deleted, is_edited, created_at
         FROM messages
         WHERE ((sender_id=? AND receiver_id=?) OR (sender_id=? AND receiver_id=?)) AND id>?
         ORDER BY created_at ASC
@@ -129,9 +129,50 @@ if ($action === 'send') {
     $stmt = $pdo->prepare("INSERT INTO messages (sender_id,receiver_id,body) VALUES (?,?,?)");
     $stmt->execute([$me,$to,$msg]);
     $newId = $pdo->lastInsertId();
-    $row = $pdo->prepare("SELECT id,sender_id,body,media_url,media_type,created_at FROM messages WHERE id=?");
+    $row = $pdo->prepare("SELECT id,sender_id,body,media_url,media_type,is_deleted,is_edited,created_at FROM messages WHERE id=?");
     $row->execute([$newId]);
     echo json_encode(['success'=>true,'data'=>$row->fetch()]);
+    exit;
+}
+
+// POST: unsend message (mark as deleted for everyone)
+if ($action === 'unsend') {
+    $msgId = (int)($body['message_id'] ?? 0);
+    if (!$msgId) {
+        echo json_encode(['success'=>false,'message'=>'Missing message ID']);
+        exit;
+    }
+    // Verify the message belongs to this user
+    $check = $pdo->prepare("SELECT id FROM messages WHERE id=? AND sender_id=?");
+    $check->execute([$msgId, $me]);
+    if (!$check->fetch()) {
+        echo json_encode(['success'=>false,'message'=>'You can only unsend your own messages']);
+        exit;
+    }
+    $stmt = $pdo->prepare("UPDATE messages SET is_deleted=1, body=NULL, media_url=NULL WHERE id=?");
+    $stmt->execute([$msgId]);
+    echo json_encode(['success'=>true]);
+    exit;
+}
+
+// POST: edit message body
+if ($action === 'edit') {
+    $msgId   = (int)($body['message_id'] ?? 0);
+    $newBody = trim($body['body'] ?? '');
+    if (!$msgId || !$newBody) {
+        echo json_encode(['success'=>false,'message'=>'Missing message ID or body']);
+        exit;
+    }
+    // Verify ownership and that message is not deleted
+    $check = $pdo->prepare("SELECT id FROM messages WHERE id=? AND sender_id=? AND is_deleted=0");
+    $check->execute([$msgId, $me]);
+    if (!$check->fetch()) {
+        echo json_encode(['success'=>false,'message'=>'You can only edit your own messages']);
+        exit;
+    }
+    $stmt = $pdo->prepare("UPDATE messages SET body=?, is_edited=1 WHERE id=?");
+    $stmt->execute([$newBody, $msgId]);
+    echo json_encode(['success'=>true]);
     exit;
 }
 
