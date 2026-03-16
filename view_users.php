@@ -11,22 +11,36 @@ $search = $_GET['search'] ?? "";
 $filter = $_GET['filter'] ?? "";
 
 $query = "SELECT * FROM users WHERE role != 'admin'";
-if (!empty($search)) {
-    $searchEsc = $conn->real_escape_string($search);
-    $query .= " AND (username LIKE '%$searchEsc%' OR email LIKE '%$searchEsc%')";
+
+/* If no filter selected, hide banned users */
+if (empty($filter)) {
+    $query .= " AND status != 'banned'";
 }
+
+/* Apply filter if selected */
 if (!empty($filter)) {
     $filterEsc = $conn->real_escape_string($filter);
     $query .= " AND status='$filterEsc'";
 }
+
+/* Apply search */
+if (!empty($search)) {
+    $searchEsc = $conn->real_escape_string($search);
+    $query .= " AND (username LIKE '%$searchEsc%' OR email LIKE '%$searchEsc%')";
+}
+
 $query .= " ORDER BY id DESC";
 $result = $conn->query($query);
-
 /* ===== STATS ===== */
 $totalUsers    = $conn->query("SELECT COUNT(*) c FROM users WHERE role!='admin'")->fetch_assoc()['c'];
-$pendingCount  = $conn->query("SELECT COUNT(*) c FROM users WHERE status='pending'")->fetch_assoc()['c'];
-$approvedCount = $conn->query("SELECT COUNT(*) c FROM users WHERE status='approved'")->fetch_assoc()['c'];
-$bannedCount   = $conn->query("SELECT COUNT(*) c FROM users WHERE status='banned'")->fetch_assoc()['c'];
+$pendingCount  = $conn->query("SELECT COUNT(*) c FROM users WHERE role!='admin' AND status='pending'")->fetch_assoc()['c'];
+$approvedCount = $conn->query("SELECT COUNT(*) c FROM users WHERE role!='admin' AND status='approved'")->fetch_assoc()['c'];
+$bannedCount   = $conn->query("SELECT COUNT(*) c FROM users WHERE role!='admin' AND status='banned'")->fetch_assoc()['c'];
+
+/* ===== PENDING TOURNAMENTS COUNT FOR BADGE ===== */
+$pendingTournaments = $conn->query("
+    SELECT COUNT(*) c FROM tournaments WHERE status = 'pending' OR status IS NULL
+")->fetch_assoc()['c'];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -91,6 +105,7 @@ $bannedCount   = $conn->query("SELECT COUNT(*) c FROM users WHERE status='banned
         font-size: 14px; font-weight: 500;
         padding: 7px 14px; border-radius: 8px;
         transition: color 0.2s, background 0.2s;
+        display: inline-flex; align-items: center; gap: 6px;
     }
     .nav-links a:hover { color: var(--text); background: var(--surface2); }
     .nav-links a.active { color: var(--text); }
@@ -100,6 +115,15 @@ $bannedCount   = $conn->query("SELECT COUNT(*) c FROM users WHERE status='banned
         padding: 7px 18px !important; font-weight: 600 !important;
     }
     .logout-btn:hover { opacity: 0.85; }
+
+    .nav-badge {
+        display: inline-flex; align-items: center; justify-content: center;
+        min-width: 18px; height: 18px;
+        background: var(--accent); color: #fff;
+        font-size: 10px; font-weight: 700;
+        border-radius: 50px; padding: 0 5px; line-height: 1;
+    }
+
     .hamburger {
         display: none; cursor: pointer; font-size: 22px;
         color: var(--text); background: none; border: none; padding: 4px 8px;
@@ -112,10 +136,7 @@ $bannedCount   = $conn->query("SELECT COUNT(*) c FROM users WHERE status='banned
         padding: 48px 24px 80px;
     }
 
-    .page-header {
-        margin-bottom: 36px;
-        animation: fadeUp 0.4s ease both;
-    }
+    .page-header { margin-bottom: 36px; animation: fadeUp 0.4s ease both; }
     .page-header .eyebrow {
         font-size: 11px; font-weight: 700; letter-spacing: 2.5px;
         text-transform: uppercase; color: var(--accent); margin-bottom: 6px;
@@ -134,10 +155,8 @@ $bannedCount   = $conn->query("SELECT COUNT(*) c FROM users WHERE status='banned
         gap: 14px; margin-bottom: 28px;
     }
     .mini-stat {
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        padding: 18px 20px;
+        background: var(--surface); border: 1px solid var(--border);
+        border-radius: var(--radius); padding: 18px 20px;
         position: relative; overflow: hidden;
         animation: fadeUp 0.4s ease both;
         transition: border-color 0.3s;
@@ -147,16 +166,14 @@ $bannedCount   = $conn->query("SELECT COUNT(*) c FROM users WHERE status='banned
     .mini-stat:nth-child(2) { animation-delay: 0.10s; }
     .mini-stat:nth-child(3) { animation-delay: 0.15s; }
     .mini-stat:nth-child(4) { animation-delay: 0.20s; }
-
     .mini-stat::before {
         content: ''; position: absolute;
         left: 0; top: 0; bottom: 0; width: 3px; border-radius: 3px 0 0 3px;
     }
-    .mini-stat.total::before  { background: var(--accent); }
-    .mini-stat.pending::before { background: var(--yellow); }
+    .mini-stat.total::before    { background: var(--accent); }
+    .mini-stat.pending::before  { background: var(--yellow); }
     .mini-stat.approved::before { background: var(--green); }
-    .mini-stat.banned::before  { background: var(--red); }
-
+    .mini-stat.banned::before   { background: var(--red); }
     .mini-stat span {
         font-size: 10px; font-weight: 700;
         letter-spacing: 2px; text-transform: uppercase; color: var(--muted);
@@ -166,7 +183,7 @@ $bannedCount   = $conn->query("SELECT COUNT(*) c FROM users WHERE status='banned
         font-size: 34px; font-weight: 800; letter-spacing: -1.5px;
         line-height: 1; margin-top: 6px;
     }
-    .mini-stat.total h3   { color: var(--accent); }
+    .mini-stat.total h3    { color: var(--accent); }
     .mini-stat.pending h3  { color: var(--yellow); }
     .mini-stat.approved h3 { color: var(--green); }
     .mini-stat.banned h3   { color: var(--red); }
@@ -177,78 +194,54 @@ $bannedCount   = $conn->query("SELECT COUNT(*) c FROM users WHERE status='banned
         margin-bottom: 20px;
         animation: fadeUp 0.4s ease 0.15s both;
     }
-    .search-wrap {
-        position: relative; flex: 1; max-width: 320px;
-    }
+    .search-wrap { position: relative; flex: 1; max-width: 320px; }
     .search-wrap svg {
         position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
         color: var(--muted); pointer-events: none;
     }
     .controls-bar input[type="text"] {
-        width: 100%;
-        padding: 10px 14px 10px 38px;
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: 9px;
-        color: var(--text); font-size: 14px;
+        width: 100%; padding: 10px 14px 10px 38px;
+        background: var(--surface); border: 1px solid var(--border);
+        border-radius: 9px; color: var(--text); font-size: 14px;
         font-family: 'DM Sans', sans-serif;
-        transition: border-color 0.2s;
-        outline: none;
+        transition: border-color 0.2s; outline: none;
     }
     .controls-bar input[type="text"]:focus { border-color: var(--accent); }
     .controls-bar input::placeholder { color: var(--muted); }
-
     .controls-bar select {
         padding: 10px 36px 10px 14px;
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: 9px;
-        color: var(--text); font-size: 14px;
-        font-family: 'DM Sans', sans-serif;
-        appearance: none;
+        background: var(--surface); border: 1px solid var(--border);
+        border-radius: 9px; color: var(--text); font-size: 14px;
+        font-family: 'DM Sans', sans-serif; appearance: none;
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%236b7280' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
-        background-repeat: no-repeat;
-        background-position: right 12px center;
-        cursor: pointer; outline: none;
-        transition: border-color 0.2s;
+        background-repeat: no-repeat; background-position: right 12px center;
+        cursor: pointer; outline: none; transition: border-color 0.2s;
     }
     .controls-bar select:focus { border-color: var(--accent); }
-
     .search-btn {
-        padding: 10px 20px;
-        background: var(--accent); color: #fff;
-        border: none; border-radius: 9px;
-        font-size: 14px; font-weight: 600;
-        font-family: 'DM Sans', sans-serif;
-        cursor: pointer;
-        transition: opacity 0.2s;
+        padding: 10px 20px; background: var(--accent); color: #fff;
+        border: none; border-radius: 9px; font-size: 14px; font-weight: 600;
+        font-family: 'DM Sans', sans-serif; cursor: pointer; transition: opacity 0.2s;
     }
     .search-btn:hover { opacity: 0.85; }
 
     /* ── TABLE ── */
     .table-card {
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        overflow: hidden;
+        background: var(--surface); border: 1px solid var(--border);
+        border-radius: var(--radius); overflow: hidden;
         animation: fadeUp 0.4s ease 0.2s both;
     }
-    .admin-table {
-        width: 100%; border-collapse: collapse;
-    }
+    .admin-table { width: 100%; border-collapse: collapse; }
     .admin-table th {
         font-size: 10px; font-weight: 700;
         letter-spacing: 1.8px; text-transform: uppercase;
-        color: var(--muted); padding: 13px 20px;
-        text-align: left;
-        background: var(--surface2);
-        border-bottom: 1px solid var(--border);
+        color: var(--muted); padding: 13px 20px; text-align: left;
+        background: var(--surface2); border-bottom: 1px solid var(--border);
     }
     .admin-table td {
         padding: 14px 20px; font-size: 13.5px;
         border-bottom: 1px solid var(--border);
-        vertical-align: middle;
-        transition: background 0.15s;
+        vertical-align: middle; transition: background 0.15s;
     }
     .admin-table tr:last-child td { border-bottom: none; }
     .admin-table tbody tr:hover td { background: var(--surface2); }
@@ -261,12 +254,11 @@ $bannedCount   = $conn->query("SELECT COUNT(*) c FROM users WHERE status='banned
         display: flex; align-items: center; justify-content: center;
         font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0;
     }
-    .user-name { font-weight: 500; }
+    .user-name  { font-weight: 500; }
     .user-email { font-size: 12px; color: var(--muted); }
 
     .role-badge {
-        display: inline-block;
-        padding: 3px 10px; border-radius: 20px;
+        display: inline-block; padding: 3px 10px; border-radius: 20px;
         font-size: 11px; font-weight: 600; letter-spacing: 0.3px;
     }
     .role-athlete   { background: rgba(59,130,246,0.15); color: #60a5fa; }
@@ -277,56 +269,100 @@ $bannedCount   = $conn->query("SELECT COUNT(*) c FROM users WHERE status='banned
         padding: 4px 10px; border-radius: 20px;
         font-size: 11px; font-weight: 600;
     }
-    .status-badge::before {
-        content: ''; width: 6px; height: 6px; border-radius: 50%;
-    }
-    .status-approved { background: rgba(16,185,129,0.12); color: #34d399; }
-    .status-approved::before { background: #34d399; }
-    .status-pending  { background: rgba(245,158,11,0.12); color: #fbbf24; }
-    .status-pending::before  { background: #fbbf24; }
-    .status-banned   { background: rgba(239,68,68,0.12);  color: #f87171; }
-    .status-banned::before   { background: #f87171; }
-    .status-suspended { background: rgba(107,114,128,0.15); color: #9ca3af; }
+    .status-badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; }
+    .status-approved::before  { background: #34d399; }
+    .status-approved  { background: rgba(16,185,129,0.12);  color: #34d399; }
+    .status-pending::before   { background: #fbbf24; }
+    .status-pending   { background: rgba(245,158,11,0.12);  color: #fbbf24; }
+    .status-banned::before    { background: #f87171; }
+    .status-banned    { background: rgba(239,68,68,0.12);   color: #f87171; }
     .status-suspended::before { background: #9ca3af; }
+    .status-suspended { background: rgba(107,114,128,0.15); color: #9ca3af; }
 
     /* ── DROPDOWN ── */
-    .action-dropdown { position: relative; display: inline-block; }
-    .action-btn {
-        padding: 7px 14px;
-        background: var(--surface2);
-        border: 1px solid var(--border);
-        border-radius: 8px;
-        color: var(--text); font-size: 13px; font-weight: 500;
-        font-family: 'DM Sans', sans-serif;
-        cursor: pointer; transition: border-color 0.2s;
-    }
-    .action-btn:hover { border-color: rgba(255,255,255,0.18); }
-    .dropdown-menu {
-        display: none;
-        position: absolute; right: 0; top: calc(100% + 6px);
-        background: var(--surface2);
-        border: 1px solid var(--border);
-        border-radius: 10px;
-        min-width: 150px;
-        box-shadow: 0 12px 32px rgba(0,0,0,0.5);
-        z-index: 50; overflow: hidden;
-    }
-    .action-dropdown:hover .dropdown-menu { display: block; }
-    .dropdown-menu button,
-    .dropdown-menu a {
-        display: block; width: 100%;
-        padding: 10px 16px;
-        background: none; border: none;
-        color: var(--text); font-size: 13px;
-        font-family: 'DM Sans', sans-serif;
-        text-align: left; text-decoration: none;
-        cursor: pointer; transition: background 0.15s;
-    }
-    .dropdown-menu button:hover,
-    .dropdown-menu a:hover { background: rgba(255,255,255,0.06); }
-    .dropdown-menu a.approve { color: var(--green); }
-    .dropdown-menu a.decline { color: var(--red); }
 
+.action-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.action-btn {
+    padding: 7px 14px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 500;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+
+.action-btn:hover {
+    border-color: rgba(255,255,255,0.18);
+}
+
+.dropdown-menu {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 6px);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    min-width: 160px;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+    z-index: 50;
+    overflow: hidden;
+
+    /* smooth hover behavior */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-6px);
+
+    transition: 
+        opacity 0.2s ease,
+        transform 0.2s ease,
+        visibility 0.2s;
+}
+
+/* show dropdown smoothly */
+.action-dropdown:hover .dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.dropdown-menu button,
+.dropdown-menu a {
+    display: block;
+    width: 100%;
+    padding: 10px 16px;
+    background: none;
+    border: none;
+    color: var(--text);
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.dropdown-menu button:hover,
+.dropdown-menu a:hover {
+    background: rgba(255,255,255,0.06);
+}
+
+.dropdown-menu a.approve { color: var(--green); }
+.dropdown-menu a.decline { color: var(--red); }
+.dropdown-menu a.delete  { color: var(--red); }
+
+.dropdown-menu .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 4px 0;
+}
     /* ── MODALS ── */
     .modal {
         display: none; position: fixed; inset: 0; z-index: 999;
@@ -334,32 +370,22 @@ $bannedCount   = $conn->query("SELECT COUNT(*) c FROM users WHERE status='banned
         align-items: center; justify-content: center;
     }
     .modal.open { display: flex; }
-
     .modal-card {
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: 18px;
-        padding: 0;
-        width: 90%; max-width: 460px;
-        overflow: hidden;
+        background: var(--surface); border: 1px solid var(--border);
+        border-radius: 18px; padding: 0;
+        width: 90%; max-width: 460px; overflow: hidden;
         animation: scaleIn 0.22s ease;
     }
     .modal-head {
         display: flex; align-items: center; justify-content: space-between;
-        padding: 20px 24px;
-        border-bottom: 1px solid var(--border);
+        padding: 20px 24px; border-bottom: 1px solid var(--border);
     }
-    .modal-head h3 {
-        font-family: 'Syne', sans-serif;
-        font-size: 17px; font-weight: 700;
-    }
+    .modal-head h3 { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 700; }
     .close-btn {
         background: none; border: none; color: var(--muted);
-        font-size: 18px; cursor: pointer; line-height: 1;
-        transition: color 0.2s;
+        font-size: 18px; cursor: pointer; line-height: 1; transition: color 0.2s;
     }
     .close-btn:hover { color: var(--text); }
-
     .modal-body { padding: 24px; }
     .form-group { margin-bottom: 16px; }
     .form-group label {
@@ -370,36 +396,28 @@ $bannedCount   = $conn->query("SELECT COUNT(*) c FROM users WHERE status='banned
     .form-group input,
     .form-group select {
         width: 100%; padding: 10px 14px;
-        background: var(--surface2);
-        border: 1px solid var(--border);
-        border-radius: 8px;
-        color: var(--text); font-size: 14px;
-        font-family: 'DM Sans', sans-serif;
-        outline: none; transition: border-color 0.2s;
+        background: var(--surface2); border: 1px solid var(--border);
+        border-radius: 8px; color: var(--text); font-size: 14px;
+        font-family: 'DM Sans', sans-serif; outline: none; transition: border-color 0.2s;
     }
     .form-group input:focus,
     .form-group select:focus { border-color: var(--accent); }
-
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-
     .modal-foot {
         display: flex; gap: 10px; justify-content: flex-end;
-        padding: 16px 24px;
-        border-top: 1px solid var(--border);
+        padding: 16px 24px; border-top: 1px solid var(--border);
     }
     .btn {
         padding: 10px 22px; border-radius: 9px;
         font-size: 14px; font-weight: 600;
         font-family: 'DM Sans', sans-serif;
-        cursor: pointer; border: none;
-        transition: opacity 0.2s;
+        cursor: pointer; border: none; transition: opacity 0.2s;
     }
     .btn:hover { opacity: 0.85; }
     .btn-ghost  { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
     .btn-save   { background: var(--accent); color: #fff; }
     .btn-danger { background: var(--red); color: #fff; }
 
-    /* logout modal */
     .modal-simple {
         background: var(--surface); border: 1px solid var(--border);
         border-radius: 18px; padding: 36px 32px 28px;
@@ -409,7 +427,6 @@ $bannedCount   = $conn->query("SELECT COUNT(*) c FROM users WHERE status='banned
     .modal-simple h3 { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; margin-bottom: 8px; }
     .modal-simple p  { color: var(--muted); font-size: 14px; margin-bottom: 24px; }
 
-    /* ── ANIMATIONS ── */
     @keyframes fadeUp {
         from { opacity: 0; transform: translateY(16px); }
         to   { opacity: 1; transform: translateY(0); }
@@ -419,10 +436,7 @@ $bannedCount   = $conn->query("SELECT COUNT(*) c FROM users WHERE status='banned
         to   { opacity: 1; transform: scale(1); }
     }
 
-    /* ── RESPONSIVE ── */
-    @media (max-width: 900px) {
-        .stats-row { grid-template-columns: repeat(2, 1fr); }
-    }
+    @media (max-width: 900px) { .stats-row { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 680px) {
         .stats-row { grid-template-columns: 1fr 1fr; }
         .nav-links { display: none; }
@@ -448,6 +462,12 @@ $bannedCount   = $conn->query("SELECT COUNT(*) c FROM users WHERE status='banned
     <div class="nav-links" id="navMenu">
         <a href="admin_dashboard.php">Dashboard</a>
         <a href="view_users.php" class="active">Users</a>
+        <a href="admin_tournaments.php">
+            Tournaments
+            <?php if ($pendingTournaments > 0): ?>
+                <span class="nav-badge"><?= $pendingTournaments ?></span>
+            <?php endif; ?>
+        </a>
         <a href="#" class="logout-btn" onclick="openLogoutModal(); return false;">Log Out</a>
     </div>
     <button class="hamburger" onclick="toggleMenu()">☰</button>
@@ -536,23 +556,47 @@ $bannedCount   = $conn->query("SELECT COUNT(*) c FROM users WHERE status='banned
                     </span>
                 </td>
                 <td>
-                    <div class="action-dropdown">
-                        <button class="action-btn">Actions ▾</button>
-                        <div class="dropdown-menu">
-                            <button onclick="openEditModal(
-                                '<?= $row['id'] ?>',
-                                '<?= htmlspecialchars($row['username']) ?>',
-                                '<?= htmlspecialchars($row['email']) ?>',
-                                '<?= $row['role'] ?>',
-                                '<?= $row['status'] ?>'
-                            )">Edit User</button>
-                            <?php if($row['status']=="pending"): ?>
-                                <a class="approve" href="update_user_status.php?id=<?= $row['id'] ?>&status=approved">Approve</a>
-                                <a class="decline" href="update_user_status.php?id=<?= $row['id'] ?>&status=banned">Decline</a>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                </td>
+<div class="action-dropdown">
+<button class="action-btn">Actions ▾</button>
+
+<div class="dropdown-menu">
+
+<button onclick="openEditModal(
+'<?= $row['id'] ?>',
+'<?= htmlspecialchars($row['username'], ENT_QUOTES) ?>',
+'<?= htmlspecialchars($row['email'], ENT_QUOTES) ?>',
+'<?= $row['role'] ?>',
+'<?= $row['status'] ?>'
+)">Edit User</button>
+
+<div class="divider"></div>
+
+<?php if($row['status'] !== 'banned'): ?>
+
+<a class="decline"
+href="ban_user.php?id=<?= $row['id'] ?>"
+onclick="return confirm('Ban this user?')">
+🚫 Ban User
+</a>
+
+<?php else: ?>
+
+<a class="approve"
+href="update_user_status.php?id=<?= $row['id'] ?>&status=approved">
+✅ Unban User
+</a>
+
+<?php endif; ?>
+
+<a class="delete"
+href="delete_user.php?id=<?= $row['id'] ?>"
+onclick="return confirm('Delete this account permanently?')">
+🗑 Delete Account
+</a>
+
+</div>
+</div>
+</td>
             </tr>
             <?php endwhile; ?>
             </tbody>
@@ -609,8 +653,8 @@ $bannedCount   = $conn->query("SELECT COUNT(*) c FROM users WHERE status='banned
         <h3>Confirm Logout</h3>
         <p>Are you sure you want to end your admin session?</p>
         <div style="display:flex;gap:10px;justify-content:center">
-            <button class="btn btn-ghost"   onclick="closeLogoutModal()">Cancel</button>
-            <button class="btn btn-danger"  onclick="doLogout()">Yes, Logout</button>
+            <button class="btn btn-ghost"  onclick="closeLogoutModal()">Cancel</button>
+            <button class="btn btn-danger" onclick="doLogout()">Yes, Logout</button>
         </div>
     </div>
 </div>
@@ -619,8 +663,6 @@ $bannedCount   = $conn->query("SELECT COUNT(*) c FROM users WHERE status='banned
 function toggleMenu() {
     document.getElementById('navMenu').classList.toggle('open');
 }
-
-/* edit modal */
 function openEditModal(id, name, email, role, status) {
     document.getElementById('edit_id').value     = id;
     document.getElementById('edit_name').value   = name;
@@ -637,24 +679,20 @@ function saveUser() {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body:
-            'id='       + document.getElementById('edit_id').value +
-            '&username='+ document.getElementById('edit_name').value +
-            '&email='   + document.getElementById('edit_email').value +
-            '&role='    + document.getElementById('edit_role').value +
-            '&status='  + document.getElementById('edit_status').value
+            'id='        + encodeURIComponent(document.getElementById('edit_id').value) +
+            '&username=' + encodeURIComponent(document.getElementById('edit_name').value) +
+            '&email='    + encodeURIComponent(document.getElementById('edit_email').value) +
+            '&role='     + encodeURIComponent(document.getElementById('edit_role').value) +
+            '&status='   + encodeURIComponent(document.getElementById('edit_status').value)
     }).then(() => location.reload());
 }
-
-/* logout modal */
 function openLogoutModal()  { document.getElementById('logoutModal').classList.add('open'); }
 function closeLogoutModal() { document.getElementById('logoutModal').classList.remove('open'); }
 function doLogout()         { window.location.href = 'logout.php'; }
 
 window.addEventListener('click', e => {
-    const edit    = document.getElementById('editModal');
-    const logout  = document.getElementById('logoutModal');
-    if (e.target === edit)   closeModal();
-    if (e.target === logout) closeLogoutModal();
+    if (e.target === document.getElementById('editModal'))   closeModal();
+    if (e.target === document.getElementById('logoutModal')) closeLogoutModal();
 });
 </script>
 </body>

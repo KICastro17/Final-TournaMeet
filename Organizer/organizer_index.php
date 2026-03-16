@@ -7,12 +7,13 @@ $my_tournaments = [];
 $map_tournaments = [];
 $username = $_SESSION['username'] ?? '';
 
+// Fetch tournaments WITH real approval status from DB
 $stmt = $conn->prepare("
     SELECT id, name, sport, location AS venue, date, time, format,
            prize, entrance_fee, description, slots_total, slots_taken,
            registration_deadline, is_closed,
            latitude, longitude,
-           'upcoming' AS status
+           COALESCE(status, 'pending') AS approval_status
     FROM tournaments
     WHERE created_by = ?
     ORDER BY date ASC
@@ -142,8 +143,7 @@ if ($map_stmt) {
     .sport-card::before {
       content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
       background: linear-gradient(90deg, var(--orange), var(--orange-mid));
-      opacity: 0; transition: opacity 0.2s;
-      pointer-events: none;
+      opacity: 0; transition: opacity 0.2s; pointer-events: none;
     }
     .sport-card:hover { transform: translateY(-4px); box-shadow: 0 8px 28px rgba(244,123,32,0.18); border-color: var(--orange); }
     .sport-card:hover::before { opacity: 1; }
@@ -158,7 +158,6 @@ if ($map_stmt) {
     .icon-wrap svg { width: 36px; height: 36px; stroke: var(--orange); transition: stroke 0.2s; }
     .sport-name { font-family: 'Bebas Neue', sans-serif; font-size: 1.15rem; letter-spacing: 1.5px; color: #222; margin-bottom: 4px; }
     .sport-sub  { font-size: 0.75rem; color: #c0a090; font-weight: 500; margin-bottom: 14px; }
-
     .card-actions { display: flex; gap: 8px; position: relative; z-index: 2; }
     .card-btn {
       flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 5px;
@@ -179,7 +178,7 @@ if ($map_stmt) {
     .sport-card:nth-child(6) { animation-delay: 300ms; }
     @keyframes fadeUp { from { opacity:0; transform:translateY(18px); } to { opacity:1; transform:translateY(0); } }
 
-    /* ══ CREATE MODAL ══ */
+    /* ══ MODALS ══ */
     .modal-overlay {
       position: fixed; inset: 0; z-index: 5000;
       display: none; align-items: center; justify-content: center;
@@ -189,7 +188,6 @@ if ($map_stmt) {
     }
     .modal-overlay.open { display: flex; animation: fadeIn 0.22s ease; }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
     .modal-box {
       background: var(--white); border-radius: 20px; overflow: hidden;
       width: 100%; max-width: 780px; max-height: 92vh; overflow-y: auto;
@@ -207,8 +205,7 @@ if ($map_stmt) {
     }
     .modal-title {
       display: flex; align-items: center; gap: 10px;
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.4rem; letter-spacing: 2px; color: white;
+      font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; letter-spacing: 2px; color: white;
     }
     .modal-close {
       background: rgba(255,255,255,0.18); border: none; color: white;
@@ -217,7 +214,6 @@ if ($map_stmt) {
     }
     .modal-close:hover { background: rgba(255,255,255,0.32); }
     .modal-body { padding: 28px 28px 24px; }
-
     .sport-selector { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 22px; }
     .sport-opt {
       border: 1.5px solid #f0e0d0; border-radius: 10px; padding: 9px 6px;
@@ -228,7 +224,6 @@ if ($map_stmt) {
     .sport-opt .opt-name { font-family: 'Bebas Neue', sans-serif; font-size: 0.85rem; letter-spacing: 1px; display: block; margin-top: 3px; }
     .sport-opt .opt-emoji { font-size: 1.3rem; }
     .sport-opt.selected .opt-name { color: white; }
-
     .form-group { margin-bottom: 16px; }
     .form-label { display: block; font-size: 0.8rem; font-weight: 700; color: #555; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
     .form-input, .form-select, .form-textarea {
@@ -260,7 +255,6 @@ if ($map_stmt) {
       animation: slideUp 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
     .manage-list { flex: 1; overflow-y: auto; padding: 18px; }
-
     .t-row-wrap { margin-bottom: 10px; }
     .tournament-row {
       display: flex; align-items: center; gap: 14px;
@@ -270,20 +264,19 @@ if ($map_stmt) {
     }
     .tournament-row:hover { border-color: var(--orange); box-shadow: 0 2px 12px rgba(244,123,32,0.1); }
     .tournament-row:hover .t-name { color: var(--orange); }
-    .t-row-wrap.panel-open .tournament-row {
-      border-radius: 12px 12px 0 0;
-      border-bottom-color: transparent;
-    }
-
+    .t-row-wrap.panel-open .tournament-row { border-radius: 12px 12px 0 0; border-bottom-color: transparent; }
     .t-sport-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
     .t-info { flex: 1; min-width: 0; }
     .t-name { font-weight: 700; font-size: 0.92rem; color: #1a1a1a; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: color 0.15s; }
     .t-meta { font-size: 0.75rem; color: #999; }
 
+    /* ── Status badges including new approval states ── */
     .t-status { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; padding: 3px 9px; border-radius: 50px; flex-shrink: 0; }
     .t-status.active   { background: #e6f8f0; color: #16a05b; }
     .t-status.upcoming { background: var(--orange-light); color: var(--orange-dark); }
     .t-status.ended    { background: #f5f5f5; color: #999; }
+    .t-status.pending-approval { background: #fff8e6; color: #b45309; border: 1px dashed #f59e0b; }
+    .t-status.declined-approval { background: #fff0f0; color: #dc2626; }
 
     .t-actions { display: flex; gap: 6px; flex-shrink: 0; }
     .t-btn { width: 32px; height: 32px; border-radius: 8px; border: 1.5px solid; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.16s; background: var(--white); }
@@ -297,10 +290,19 @@ if ($map_stmt) {
     .t-btn-reopen { border-color: #a0e0b8; color: #16a05b; }
     .t-btn-reopen:hover { background: #16a05b; color: white; border-color: #16a05b; }
 
+    /* ── Pending approval banner inside row ── */
+    .approval-notice {
+      display: flex; align-items: center; gap: 8px;
+      margin: 6px 0 0;
+      padding: 6px 10px;
+      background: #fffbeb; border: 1px dashed #f59e0b; border-radius: 7px;
+      font-size: 0.72rem; color: #92400e; font-weight: 600;
+    }
+    .approval-notice.declined { background: #fff5f5; border-color: #fca5a5; color: #991b1b; }
+
     /* ── REGISTRANTS PANEL ── */
     .registrants-panel {
-      display: none;
-      background: #fdfaf8;
+      display: none; background: #fdfaf8;
       border: 1.5px solid #f0e0d0; border-top: none;
       border-radius: 0 0 12px 12px;
       padding: 0 16px 14px;
@@ -331,7 +333,6 @@ if ($map_stmt) {
     .reg-reject-btn:hover  { background: #e05252; color: white; }
     .reg-empty   { text-align: center; padding: 20px; color: #ccc; font-size: 0.82rem; }
     .reg-loading { text-align: center; padding: 16px; color: #ccc; font-size: 0.8rem; }
-
     .manage-empty { text-align: center; padding: 48px 20px; color: #ccc; font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; letter-spacing: 1px; }
     .manage-empty svg { margin-bottom: 12px; opacity: 0.4; }
 
@@ -357,7 +358,6 @@ if ($map_stmt) {
     .map-legend { padding: 11px 22px; border-top: 1.5px solid #f0e0d0; display: flex; align-items: center; gap: 18px; flex-wrap: wrap; font-size: 0.78rem; color: #888; flex-shrink: 0; }
     .legend-item { display: flex; align-items: center; gap: 6px; }
     .legend-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
-
     .tm-popup .leaflet-popup-content-wrapper { border-radius: 12px; border: 2px solid var(--orange); box-shadow: 0 4px 20px rgba(244,123,32,0.22); padding: 0; overflow: hidden; }
     .tm-popup .leaflet-popup-content { margin: 0; }
     .tm-popup .leaflet-popup-tip { background: var(--orange); }
@@ -381,7 +381,6 @@ if ($map_stmt) {
     .btn-venue-search:hover { background: var(--orange-dark); }
     .coords-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 
-    /* Toast */
     #toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(20px); background: #1a1a1a; color: white; padding: 11px 22px; border-radius: 50px; font-size: 0.85rem; font-weight: 600; opacity: 0; pointer-events: none; z-index: 9999; transition: opacity 0.3s, transform 0.3s; }
     #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
     #toast.success { background: #27AE72; }
@@ -439,12 +438,8 @@ if ($map_stmt) {
     </div>
 
     <div class="sports-grid">
-
-      <!-- Ball Sports -->
       <div class="sport-card" style="animation-delay:0ms">
-        <div class="icon-wrap">
-          <svg viewBox="0 0 36 36" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="18" r="13"/><line x1="18" y1="5" x2="18" y2="31"/><line x1="5" y1="18" x2="31" y2="18"/><path d="M18 5 C10 8 10 28 18 31" fill="none"/><path d="M18 5 C26 8 26 28 18 31" fill="none"/></svg>
-        </div>
+        <div class="icon-wrap"><svg viewBox="0 0 36 36" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="18" r="13"/><line x1="18" y1="5" x2="18" y2="31"/><line x1="5" y1="18" x2="31" y2="18"/><path d="M18 5 C10 8 10 28 18 31" fill="none"/><path d="M18 5 C26 8 26 28 18 31" fill="none"/></svg></div>
         <div class="sport-name">Ball Sports</div>
         <div class="sport-sub">Basketball · Football · Volleyball</div>
         <div class="card-actions">
@@ -452,12 +447,8 @@ if ($map_stmt) {
           <button class="card-btn card-btn-manage" onclick="event.stopPropagation(); openManage('Ball Sports')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Manage</button>
         </div>
       </div>
-
-      <!-- Racket Sports -->
       <div class="sport-card" style="animation-delay:60ms">
-        <div class="icon-wrap">
-          <svg viewBox="0 0 36 36" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="13" cy="12" rx="6" ry="8" transform="rotate(-35 13 12)"/><line x1="7" y1="7" x2="12" y2="19" stroke-width="1" opacity="0.5"/><line x1="10" y1="5" x2="15" y2="17" stroke-width="1" opacity="0.5"/><line x1="13" y1="4" x2="18" y2="16" stroke-width="1" opacity="0.5"/><line x1="7" y1="10" x2="17" y2="6" stroke-width="1" opacity="0.5"/><line x1="7" y1="13" x2="18" y2="9" stroke-width="1" opacity="0.5"/><line x1="8" y1="16" x2="19" y2="12" stroke-width="1" opacity="0.5"/><line x1="17" y1="18" x2="30" y2="32" stroke-width="2.4"/><circle cx="29" cy="10" r="3"/></svg>
-        </div>
+        <div class="icon-wrap"><svg viewBox="0 0 36 36" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="13" cy="12" rx="6" ry="8" transform="rotate(-35 13 12)"/><line x1="7" y1="7" x2="12" y2="19" stroke-width="1" opacity="0.5"/><line x1="10" y1="5" x2="15" y2="17" stroke-width="1" opacity="0.5"/><line x1="13" y1="4" x2="18" y2="16" stroke-width="1" opacity="0.5"/><line x1="7" y1="10" x2="17" y2="6" stroke-width="1" opacity="0.5"/><line x1="7" y1="13" x2="18" y2="9" stroke-width="1" opacity="0.5"/><line x1="8" y1="16" x2="19" y2="12" stroke-width="1" opacity="0.5"/><line x1="17" y1="18" x2="30" y2="32" stroke-width="2.4"/><circle cx="29" cy="10" r="3"/></svg></div>
         <div class="sport-name">Racket Sports</div>
         <div class="sport-sub">Badminton · Tennis · Squash</div>
         <div class="card-actions">
@@ -465,12 +456,8 @@ if ($map_stmt) {
           <button class="card-btn card-btn-manage" onclick="event.stopPropagation(); openManage('Racket Sports')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Manage</button>
         </div>
       </div>
-
-      <!-- Combatives -->
       <div class="sport-card" style="animation-delay:120ms">
-        <div class="icon-wrap">
-          <svg viewBox="0 0 36 36" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12 Q3 8 9 8 L15 8 Q18 8 18 12 L18 19 Q18 22 15 22 L9 22 Q3 22 3 18 Z" fill="currentColor" fill-opacity="0.08"/><path d="M3 12 Q3 8 9 8 L15 8 Q18 8 18 12 L18 19 Q18 22 15 22 L9 22 Q3 22 3 18 Z"/><path d="M15 8 Q20 7 19 12 Q18 13 18 12"/><rect x="5" y="22" width="11" height="5" rx="2.5"/><path d="M33 12 Q33 8 27 8 L21 8 Q18 8 18 12 L18 19 Q18 22 21 22 L27 22 Q33 22 33 18 Z" fill="currentColor" fill-opacity="0.08"/><path d="M33 12 Q33 8 27 8 L21 8 Q18 8 18 12 L18 19 Q18 22 21 22 L27 22 Q33 22 33 18 Z"/><path d="M21 8 Q16 7 17 12 Q18 13 18 12"/><rect x="20" y="22" width="11" height="5" rx="2.5"/></svg>
-        </div>
+        <div class="icon-wrap"><svg viewBox="0 0 36 36" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12 Q3 8 9 8 L15 8 Q18 8 18 12 L18 19 Q18 22 15 22 L9 22 Q3 22 3 18 Z" fill="currentColor" fill-opacity="0.08"/><path d="M3 12 Q3 8 9 8 L15 8 Q18 8 18 12 L18 19 Q18 22 15 22 L9 22 Q3 22 3 18 Z"/><path d="M15 8 Q20 7 19 12 Q18 13 18 12"/><rect x="5" y="22" width="11" height="5" rx="2.5"/><path d="M33 12 Q33 8 27 8 L21 8 Q18 8 18 12 L18 19 Q18 22 21 22 L27 22 Q33 22 33 18 Z" fill="currentColor" fill-opacity="0.08"/><path d="M33 12 Q33 8 27 8 L21 8 Q18 8 18 12 L18 19 Q18 22 21 22 L27 22 Q33 22 33 18 Z"/><path d="M21 8 Q16 7 17 12 Q18 13 18 12"/><rect x="20" y="22" width="11" height="5" rx="2.5"/></svg></div>
         <div class="sport-name">Combatives</div>
         <div class="sport-sub">Boxing · MMA · Karate</div>
         <div class="card-actions">
@@ -478,12 +465,8 @@ if ($map_stmt) {
           <button class="card-btn card-btn-manage" onclick="event.stopPropagation(); openManage('Combatives')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Manage</button>
         </div>
       </div>
-
-      <!-- Endurance -->
       <div class="sport-card" style="animation-delay:180ms">
-        <div class="icon-wrap">
-          <svg viewBox="0 0 36 36" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="6" r="3.5"/><line x1="18" y1="9.5" x2="18" y2="21"/><line x1="18" y1="13" x2="11" y2="16"/><line x1="18" y1="13" x2="25" y2="16"/><line x1="18" y1="21" x2="13" y2="30"/><line x1="18" y1="21" x2="23" y2="30"/></svg>
-        </div>
+        <div class="icon-wrap"><svg viewBox="0 0 36 36" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="6" r="3.5"/><line x1="18" y1="9.5" x2="18" y2="21"/><line x1="18" y1="13" x2="11" y2="16"/><line x1="18" y1="13" x2="25" y2="16"/><line x1="18" y1="21" x2="13" y2="30"/><line x1="18" y1="21" x2="23" y2="30"/></svg></div>
         <div class="sport-name">Endurance</div>
         <div class="sport-sub">Running · Cycling · Triathlon</div>
         <div class="card-actions">
@@ -491,12 +474,8 @@ if ($map_stmt) {
           <button class="card-btn card-btn-manage" onclick="event.stopPropagation(); openManage('Endurance')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Manage</button>
         </div>
       </div>
-
-      <!-- Precision -->
       <div class="sport-card" style="animation-delay:240ms">
-        <div class="icon-wrap">
-          <svg viewBox="0 0 36 36" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="17" cy="20" r="12"/><circle cx="17" cy="20" r="7.5"/><circle cx="17" cy="20" r="3.5"/><circle cx="17" cy="20" r="1.2" fill="currentColor"/><line x1="32" y1="6" x2="18" y2="20" stroke-width="2.2"/><polyline points="29,6 32,6 32,9" stroke-width="1.8"/></svg>
-        </div>
+        <div class="icon-wrap"><svg viewBox="0 0 36 36" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="17" cy="20" r="12"/><circle cx="17" cy="20" r="7.5"/><circle cx="17" cy="20" r="3.5"/><circle cx="17" cy="20" r="1.2" fill="currentColor"/><line x1="32" y1="6" x2="18" y2="20" stroke-width="2.2"/><polyline points="29,6 32,6 32,9" stroke-width="1.8"/></svg></div>
         <div class="sport-name">Precision</div>
         <div class="sport-sub">Archery · Shooting · Darts</div>
         <div class="card-actions">
@@ -504,12 +483,8 @@ if ($map_stmt) {
           <button class="card-btn card-btn-manage" onclick="event.stopPropagation(); openManage('Precision')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Manage</button>
         </div>
       </div>
-
-      <!-- E-sports -->
       <div class="sport-card" style="animation-delay:300ms">
-        <div class="icon-wrap">
-          <svg viewBox="0 0 36 36" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 11 C13 11 9 11 7 14 L6 20 C5 23 5 26 6 29 C7 31 9 33 12 32 C15 31 15 28 17 24 L19 24 C21 28 21 31 24 32 C27 33 29 31 30 29 C31 26 31 23 30 20 L29 14 C27 11 23 11 21 11 Z"/><line x1="11" y1="18" x2="11" y2="23" stroke-width="2"/><line x1="8.5" y1="20.5" x2="13.5" y2="20.5" stroke-width="2"/><circle cx="23" cy="19" r="1.2" fill="currentColor"/><circle cx="26" cy="22" r="1.2" fill="currentColor"/></svg>
-        </div>
+        <div class="icon-wrap"><svg viewBox="0 0 36 36" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 11 C13 11 9 11 7 14 L6 20 C5 23 5 26 6 29 C7 31 9 33 12 32 C15 31 15 28 17 24 L19 24 C21 28 21 31 24 32 C27 33 29 31 30 29 C31 26 31 23 30 20 L29 14 C27 11 23 11 21 11 Z"/><line x1="11" y1="18" x2="11" y2="23" stroke-width="2"/><line x1="8.5" y1="20.5" x2="13.5" y2="20.5" stroke-width="2"/><circle cx="23" cy="19" r="1.2" fill="currentColor"/><circle cx="26" cy="22" r="1.2" fill="currentColor"/></svg></div>
         <div class="sport-name">E-sports</div>
         <div class="sport-sub">FPS · MOBA · Fighting</div>
         <div class="card-actions">
@@ -517,11 +492,10 @@ if ($map_stmt) {
           <button class="card-btn card-btn-manage" onclick="event.stopPropagation(); openManage('E-sports')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Manage</button>
         </div>
       </div>
-
     </div>
   </main>
 
-  <!-- CREATE / EDIT MODAL -->
+  <!-- CREATE / EDIT MODAL (unchanged) -->
   <div class="modal-overlay" id="createModal">
     <div class="modal-box">
       <div class="modal-header">
@@ -640,6 +614,8 @@ if ($map_stmt) {
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
   let MY_TOURNAMENTS = <?php echo json_encode(array_map(function($t) {
+    $approvalStatus = $t['approval_status'] ?? 'pending';
+    // Determine display status based on both approval and tournament state
     $status = 'upcoming';
     if (!empty($t['is_closed']) && $t['is_closed'] == 1) {
         $status = 'ended';
@@ -649,22 +625,23 @@ if ($map_stmt) {
         $status = 'active';
     }
     return [
-      'id'       => $t['id'],
-      'name'     => $t['name'],
-      'sport'    => $t['sport'],
-      'date'     => $t['date'],
-      'time'     => $t['time'] ?? '',
-      'venue'    => $t['venue'] ?? '',
-      'prize'    => $t['prize'] ?? '',
-      'fee'      => (float)($t['entrance_fee'] ?? 0),
-      'status'   => $status,
-      'lat'      => (float)($t['latitude'] ?? 0),
-      'lng'      => (float)($t['longitude'] ?? 0),
-      'slots'    => (int)($t['slots_total'] ?? 0),
-      'taken'    => (int)($t['slots_taken'] ?? 0),
-      'format'   => $t['format'] ?? '',
-      'deadline' => $t['registration_deadline'] ?? '',
-      'is_closed'=> (int)($t['is_closed'] ?? 0),
+      'id'             => $t['id'],
+      'name'           => $t['name'],
+      'sport'          => $t['sport'],
+      'date'           => $t['date'],
+      'time'           => $t['time'] ?? '',
+      'venue'          => $t['venue'] ?? '',
+      'prize'          => $t['prize'] ?? '',
+      'fee'            => (float)($t['entrance_fee'] ?? 0),
+      'status'         => $status,
+      'approval_status'=> $approvalStatus,
+      'lat'            => (float)($t['latitude'] ?? 0),
+      'lng'            => (float)($t['longitude'] ?? 0),
+      'slots'          => (int)($t['slots_total'] ?? 0),
+      'taken'          => (int)($t['slots_taken'] ?? 0),
+      'format'         => $t['format'] ?? '',
+      'deadline'       => $t['registration_deadline'] ?? '',
+      'is_closed'      => (int)($t['is_closed'] ?? 0),
     ];
   }, $my_tournaments)); ?>;
 
@@ -773,10 +750,7 @@ if ($map_stmt) {
     if (!date)  { showToast('Date is required', 'error'); return; }
     if (!venue) { showToast('Venue is required', 'error'); return; }
     const payload = {
-      id:       editingId,
-      sport,
-      name,
-      date,
+      id: editingId, sport, name, date,
       time:     document.getElementById('f-time').value,
       venue,
       prize:    document.getElementById('f-prize').value,
@@ -799,8 +773,8 @@ if ($map_stmt) {
           if (idx > -1) MY_TOURNAMENTS[idx] = { ...MY_TOURNAMENTS[idx], ...payload, id: editingId };
           showToast('Tournament updated!', 'success');
         } else {
-          MY_TOURNAMENTS.push({ ...payload, id: data.id, slots: parseInt(payload.max)||0, taken: 0, is_closed: 0, status: 'upcoming' });
-          showToast('Tournament created!', 'success');
+          MY_TOURNAMENTS.push({ ...payload, id: data.id, slots: parseInt(payload.max)||0, taken: 0, is_closed: 0, status: 'upcoming', approval_status: 'pending' });
+          showToast('Tournament created! Waiting for admin approval.', 'success');
         }
         closeCreate();
         if (document.getElementById('manageModal').classList.contains('open') && currentManageSport) renderManageList(currentManageSport);
@@ -830,14 +804,41 @@ if ($map_stmt) {
       return;
     }
     list.innerHTML = items.map(t => {
-      const color    = SPORT_COLORS[t.sport] || '#ccc';
-      const isClosed = t.is_closed == 1;
-      const stCls    = isClosed ? 'ended' : (t.status === 'active' ? 'active' : t.status === 'ended' ? 'ended' : 'upcoming');
-      const stLabel  = isClosed ? 'Closed' : (t.status === 'active' ? 'Active' : t.status === 'ended' ? 'Ended' : 'Upcoming');
-      const dateStr  = t.date ? new Date(t.date).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }) : '';
-      const taken    = t.taken || 0;
-      const total    = t.slots || 0;
-      const feeStr   = t.fee > 0 ? ` · ₱${parseFloat(t.fee).toLocaleString()} fee` : ' · Free';
+      const color      = SPORT_COLORS[t.sport] || '#ccc';
+      const isClosed   = t.is_closed == 1;
+      const approval   = t.approval_status || 'pending';
+
+      // ── Status badge: approval takes priority for pending/declined ──
+      let stCls, stLabel;
+      if (approval === 'pending') {
+        stCls = 'pending-approval'; stLabel = '⏳ Pending Approval';
+      } else if (approval === 'declined') {
+        stCls = 'declined-approval'; stLabel = '✕ Declined';
+      } else {
+        // approved — show normal tournament status
+        stCls  = isClosed ? 'ended' : (t.status === 'active' ? 'active' : t.status === 'ended' ? 'ended' : 'upcoming');
+        stLabel = isClosed ? 'Closed' : (t.status === 'active' ? 'Active' : t.status === 'ended' ? 'Ended' : 'Upcoming');
+      }
+
+      const dateStr = t.date ? new Date(t.date).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }) : '';
+      const taken   = t.taken || 0;
+      const total   = t.slots || 0;
+      const feeStr  = t.fee > 0 ? ` · ₱${parseFloat(t.fee).toLocaleString()} fee` : ' · Free';
+
+      // ── Notice banner under the row for pending/declined ──
+      const noticeBanner = approval === 'pending'
+        ? `<div class="approval-notice">⏳ Awaiting admin approval — not yet visible to athletes</div>`
+        : approval === 'declined'
+        ? `<div class="approval-notice declined">✕ Declined by admin — not visible to athletes</div>`
+        : '';
+
+      // ── Only show close/reopen if approved ──
+      const closeReopenBtn = approval === 'approved'
+        ? (isClosed
+            ? `<button class="t-btn t-btn-reopen" onclick="toggleRegistration(${t.id}, 0)">Reopen</button>`
+            : `<button class="t-btn t-btn-close"  onclick="toggleRegistration(${t.id}, 1)">Close</button>`)
+        : '';
+
       return `
       <div class="t-row-wrap" id="trow-${t.id}">
         <div class="tournament-row" onclick="toggleRegistrants(${t.id}, ${total})">
@@ -845,13 +846,11 @@ if ($map_stmt) {
           <div class="t-info">
             <div class="t-name">${esc(t.name)}</div>
             <div class="t-meta">${dateStr}${t.venue ? ' · ' + esc(t.venue) : ''} · 👥 ${taken}${total ? '/' + total : ''}${feeStr}</div>
+            ${noticeBanner}
           </div>
           <span class="t-status ${stCls}">${stLabel}</span>
           <div class="t-actions" onclick="event.stopPropagation()">
-            ${isClosed
-              ? `<button class="t-btn t-btn-reopen" onclick="toggleRegistration(${t.id}, 0)">Reopen</button>`
-              : `<button class="t-btn t-btn-close"  onclick="toggleRegistration(${t.id}, 1)">Close</button>`
-            }
+            ${closeReopenBtn}
             <button class="t-btn t-btn-edit" title="Edit" onclick="editFromManage(${t.id})">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
             </button>
@@ -870,26 +869,18 @@ if ($map_stmt) {
     const panel = document.getElementById('rpanel-' + id);
     const wrap  = document.getElementById('trow-' + id);
     if (!panel) return;
-
     if (panel.classList.contains('open')) {
-      panel.classList.remove('open');
-      wrap.classList.remove('panel-open');
-      openPanelId = null;
-      return;
+      panel.classList.remove('open'); wrap.classList.remove('panel-open'); openPanelId = null; return;
     }
-
     if (openPanelId && openPanelId !== id) {
       const prev = document.getElementById('rpanel-' + openPanelId);
       const prevWrap = document.getElementById('trow-' + openPanelId);
       if (prev) prev.classList.remove('open');
       if (prevWrap) prevWrap.classList.remove('panel-open');
     }
-
     openPanelId = id;
-    panel.classList.add('open');
-    wrap.classList.add('panel-open');
+    panel.classList.add('open'); wrap.classList.add('panel-open');
     panel.innerHTML = '<div class="reg-loading">⏳ Loading registrants…</div>';
-
     fetch('/Tourna/Organizer/api/get_registrants.php?tournament_id=' + id)
       .then(r => r.json())
       .then(data => {
@@ -897,7 +888,6 @@ if ($map_stmt) {
         const regs  = data.registrants || [];
         const taken = regs.length;
         const pct   = totalSlots ? Math.min(100, Math.round((taken / totalSlots) * 100)) : 0;
-
         const t = MY_TOURNAMENTS.find(x => x.id == id);
         if (t) t.taken = taken;
         const metaEl = document.querySelector('#trow-' + id + ' .t-meta');
@@ -906,53 +896,23 @@ if ($map_stmt) {
           const feeStr  = t && t.fee > 0 ? ` · ₱${parseFloat(t.fee).toLocaleString()} fee` : ' · Free';
           metaEl.textContent = dateStr + (t && t.venue ? ' · ' + t.venue : '') + ' · 👥 ' + taken + (totalSlots ? '/' + totalSlots : '') + feeStr;
         }
-
-        const slotsHtml = `
-          <div class="reg-panel-header">
-            <span class="reg-panel-title">👥 Registrants</span>
-            <span class="reg-slots-badge">${taken}${totalSlots ? ' / ' + totalSlots : ''} slots taken</span>
-          </div>
-          <div class="slots-track-sm"><div class="slots-fill-sm" style="width:${pct}%"></div></div>`;
-
-        if (!regs.length) {
-          panel.innerHTML = slotsHtml + '<div class="reg-empty">No one has registered yet.</div>';
-          return;
-        }
-
+        const slotsHtml = `<div class="reg-panel-header"><span class="reg-panel-title">👥 Registrants</span><span class="reg-slots-badge">${taken}${totalSlots ? ' / ' + totalSlots : ''} slots taken</span></div><div class="slots-track-sm"><div class="slots-fill-sm" style="width:${pct}%"></div></div>`;
+        if (!regs.length) { panel.innerHTML = slotsHtml + '<div class="reg-empty">No one has registered yet.</div>'; return; }
         const rows = regs.map(r => `
           <tr id="regrow-${r.id}">
             <td><strong>${esc(r.athlete_username)}</strong></td>
             <td>${esc(r.team_name || '—')}</td>
             <td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(r.members || '—')}</td>
             <td>${r.joined_at ? new Date(r.joined_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—'}</td>
-            <td>
-              ${r.status === 'pending'
-                ? `<div class="reg-action-btns">
-                    <button class="reg-approve-btn" onclick="updateRegStatus(${r.id},'approved',${id},${totalSlots})">Approve</button>
-                    <button class="reg-reject-btn"  onclick="updateRegStatus(${r.id},'rejected',${id},${totalSlots})">Reject</button>
-                   </div>`
-                : `<span class="reg-status-badge ${r.status}">${r.status}</span>`
-              }
-            </td>
+            <td>${r.status === 'pending' ? `<div class="reg-action-btns"><button class="reg-approve-btn" onclick="updateRegStatus(${r.id},'approved',${id},${totalSlots})">Approve</button><button class="reg-reject-btn" onclick="updateRegStatus(${r.id},'rejected',${id},${totalSlots})">Reject</button></div>` : `<span class="reg-status-badge ${r.status}">${r.status}</span>`}</td>
           </tr>`).join('');
-
-        panel.innerHTML = slotsHtml + `
-          <table class="reg-table">
-            <thead><tr>
-              <th>Username</th><th>Team</th><th>Members</th><th>Joined</th><th>Status</th>
-            </tr></thead>
-            <tbody>${rows}</tbody>
-          </table>`;
+        panel.innerHTML = slotsHtml + `<table class="reg-table"><thead><tr><th>Username</th><th>Team</th><th>Members</th><th>Joined</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table>`;
       })
       .catch(() => { panel.innerHTML = '<div class="reg-empty">Network error.</div>'; });
   }
 
   function updateRegStatus(regId, status, tournamentId, totalSlots) {
-    fetch('/Tourna/Organizer/api/update_reg_status.php', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: regId, status })
-    })
+    fetch('/Tourna/Organizer/api/update_reg_status.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: regId, status }) })
     .then(r => r.json())
     .then(data => {
       if (data.success) {
@@ -984,8 +944,7 @@ if ($map_stmt) {
   }
 
   function toggleRegistration(id, closedVal) {
-    const label = closedVal ? 'Close registration for this tournament?' : 'Reopen registration for this tournament?';
-    if (!confirm(label)) return;
+    if (!confirm(closedVal ? 'Close registration for this tournament?' : 'Reopen registration for this tournament?')) return;
     fetch('/Tourna/Organizer/api/toggle_registration.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, is_closed: closedVal }) })
     .then(r => r.json())
     .then(data => {
@@ -1007,13 +966,8 @@ if ($map_stmt) {
 
   /* ════ MAP MODAL ════ */
   let leafletMap = null, mapInitiated = false;
-
-  function pinIcon(color) {
-    return L.divIcon({ className: '', html: `<div style="width:34px;height:34px;border-radius:50% 50% 50% 0;background:${color};border:3px solid #fff;box-shadow:0 3px 12px rgba(0,0,0,0.28);transform:rotate(-45deg);display:flex;align-items:center;justify-content:center;"><span style="transform:rotate(45deg);font-size:13px;line-height:1;">🏆</span></div>`, iconSize:[34,34], iconAnchor:[17,34], popupAnchor:[0,-36] });
-  }
-  function youIcon() {
-    return L.divIcon({ className: '', html: `<div style="width:18px;height:18px;border-radius:50%;background:#1877F2;border:3px solid #fff;box-shadow:0 0 0 4px rgba(24,119,242,0.28);"></div>`, iconSize:[18,18], iconAnchor:[9,9] });
-  }
+  function pinIcon(color) { return L.divIcon({ className: '', html: `<div style="width:34px;height:34px;border-radius:50% 50% 50% 0;background:${color};border:3px solid #fff;box-shadow:0 3px 12px rgba(0,0,0,0.28);transform:rotate(-45deg);display:flex;align-items:center;justify-content:center;"><span style="transform:rotate(45deg);font-size:13px;line-height:1;">🏆</span></div>`, iconSize:[34,34], iconAnchor:[17,34], popupAnchor:[0,-36] }); }
+  function youIcon() { return L.divIcon({ className: '', html: `<div style="width:18px;height:18px;border-radius:50%;background:#1877F2;border:3px solid #fff;box-shadow:0 0 0 4px rgba(24,119,242,0.28);"></div>`, iconSize:[18,18], iconAnchor:[9,9] }); }
 
   function buildMap(lat, lng) {
     if (leafletMap) { leafletMap.setView([lat, lng], 13); leafletMap.invalidateSize(); return; }
@@ -1028,9 +982,9 @@ if ($map_stmt) {
     if (pts.length > 1) leafletMap.fitBounds(pts, { padding: [40, 40] });
   }
 
-  const mapModal   = document.getElementById('mapModal');
-  const mapBtn     = document.getElementById('mapBtn');
-  const mapClose   = document.getElementById('mapClose');
+  const mapModal = document.getElementById('mapModal');
+  const mapBtn   = document.getElementById('mapBtn');
+  const mapClose = document.getElementById('mapClose');
   const statusBar  = document.getElementById('mapStatusBar');
   const statusText = document.getElementById('mapStatusText');
 
@@ -1050,7 +1004,6 @@ if ($map_stmt) {
 
   /* ════ VENUE MAP PICKER ════ */
   let venueMap = null, venueMarker = null;
-
   function initVenueMap() {
     if (venueMap) { venueMap.invalidateSize(); return; }
     const defaultLat = parseFloat(document.getElementById('f-lat').value) || 16.4126;
@@ -1060,7 +1013,6 @@ if ($map_stmt) {
     if (document.getElementById('f-lat').value && document.getElementById('f-lng').value) placeVenuePin(defaultLat, defaultLng);
     venueMap.on('click', function(e) { placeVenuePin(e.latlng.lat, e.latlng.lng); reverseGeocode(e.latlng.lat, e.latlng.lng); });
   }
-
   function placeVenuePin(lat, lng) {
     if (venueMarker) venueMap.removeLayer(venueMarker);
     venueMarker = L.marker([lat, lng], { icon: L.divIcon({ className: '', html: `<div style="width:30px;height:30px;border-radius:50% 50% 50% 0;background:var(--orange);border:3px solid #fff;box-shadow:0 3px 10px rgba(0,0,0,0.3);transform:rotate(-45deg);display:flex;align-items:center;justify-content:center;"><span style="transform:rotate(45deg);font-size:12px;">📍</span></div>`, iconSize:[30,30], iconAnchor:[15,30], popupAnchor:[0,-32] }), draggable: true }).addTo(venueMap);
@@ -1068,17 +1020,14 @@ if ($map_stmt) {
     document.getElementById('f-lng').value = lng.toFixed(7);
     venueMarker.on('dragend', function(e) { const pos = e.target.getLatLng(); document.getElementById('f-lat').value = pos.lat.toFixed(7); document.getElementById('f-lng').value = pos.lng.toFixed(7); reverseGeocode(pos.lat, pos.lng); });
   }
-
   function reverseGeocode(lat, lng) {
     fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`).then(r => r.json()).then(data => { if (data && data.display_name) { const v = document.getElementById('f-venue'); if (!v.value) v.value = data.display_name.split(',').slice(0,3).join(',').trim(); } }).catch(() => {});
   }
-
   function searchVenue() {
     const q = document.getElementById('f-venue').value.trim();
     if (!q) { showToast('Enter a venue name to search', 'error'); return; }
     fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=1`).then(r => r.json()).then(results => { if (!results.length) { showToast('Location not found', 'error'); return; } const r = results[0]; const lat = parseFloat(r.lat), lng = parseFloat(r.lon); if (!venueMap) initVenueMap(); venueMap.setView([lat, lng], 15); placeVenuePin(lat, lng); }).catch(() => showToast('Search failed', 'error'));
   }
-
   function updatePinFromCoords() {
     const lat = parseFloat(document.getElementById('f-lat').value);
     const lng = parseFloat(document.getElementById('f-lng').value);

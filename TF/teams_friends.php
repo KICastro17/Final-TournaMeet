@@ -17,22 +17,15 @@
   body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
 
   nav{background:#fff;border-bottom:2px solid var(--orange);display:flex;align-items:center;justify-content:space-between;padding:0 36px;height:62px;position:sticky;top:0;z-index:100;}
-  .nav-left{display:flex;align-items:center;}
+  .nav-left{display:flex;align-items:center;gap:16px;}
   .home-btn{display:flex;align-items:center;gap:8px;background:var(--orange);color:#fff;border:none;border-radius:10px;padding:8px 16px;font-family:'Barlow',sans-serif;font-weight:600;font-size:.9rem;cursor:pointer;transition:background .15s,transform .1s;}
   .home-btn:hover{background:#d96a10;}
   .home-btn:active{transform:scale(.97);}
   .home-btn span{letter-spacing:.02em;}
-  .nav-logo{display:flex;align-items:center;gap:10px;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:1.25rem;letter-spacing:.04em;color:var(--orange);text-transform:uppercase;}
-  .nav-logo svg{width:28px;height:28px;}
   .nav-search{flex:1;max-width:440px;margin:0 32px;display:flex;align-items:center;background:var(--bg);border-radius:40px;border:1.5px solid var(--border);overflow:hidden;padding:0 6px 0 18px;}
   .nav-search input{flex:1;border:none;background:transparent;outline:none;font-family:'Barlow',sans-serif;font-size:.9rem;color:var(--text);padding:8px 0;}
   .nav-search button{background:var(--orange);border:none;border-radius:50%;width:34px;height:34px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
   .nav-search button svg{width:16px;height:16px;fill:#fff;}
-  .nav-icons{display:flex;gap:6px;}
-  .nav-icons button{width:38px;height:38px;border-radius:50%;border:1.5px solid var(--border);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted);transition:border-color .2s,color .2s;position:relative;}
-  .nav-icons button:hover,.nav-icons button.active{border-color:var(--orange);color:var(--orange);}
-  .nav-icons svg{width:18px;height:18px;}
-  .req-badge{position:absolute;top:-4px;right:-4px;background:var(--red);color:#fff;font-size:.6rem;font-weight:800;border-radius:50%;width:17px;height:17px;display:flex;align-items:center;justify-content:center;border:2px solid #fff;display:none;}
 
   .page-header{padding:40px 48px 0;}
   .page-header h1{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:2.8rem;text-transform:uppercase;color:var(--orange);line-height:1;}
@@ -51,7 +44,6 @@
   .section-divider{height:1.5px;background:var(--border);margin:8px 0 36px;}
   .people-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-bottom:44px;}
 
-  /* ── Person Card ── */
   .person-card{background:var(--card);border-radius:var(--radius);padding:24px 18px 18px;display:flex;flex-direction:column;align-items:center;border:1.5px solid var(--border);transition:box-shadow .2s,border-color .2s,transform .15s;position:relative;}
   .person-card:hover{box-shadow:0 8px 28px rgba(240,123,32,.13);border-color:var(--orange-mid);transform:translateY(-2px);}
 
@@ -81,11 +73,9 @@
   .btn-decline:hover{background:#ffeaea;}
   .btn svg{width:14px;height:14px;flex-shrink:0;}
 
-  /* ── Request card highlight ── */
   .request-card{border-color:var(--orange-mid);background:#FFFAF6;}
   .request-label{position:absolute;top:10px;left:10px;background:var(--orange);color:#fff;font-size:.62rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;border-radius:20px;padding:2px 8px;}
 
-  /* ── Teams ── */
   .teams-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;margin-bottom:44px;}
   .team-card{background:var(--card);border-radius:var(--radius);border:1.5px solid var(--border);overflow:hidden;transition:box-shadow .2s,border-color .2s,transform .15s;}
   .team-card:hover{box-shadow:0 8px 28px rgba(240,123,32,.13);border-color:var(--orange-mid);transform:translateY(-2px);}
@@ -112,7 +102,6 @@
   .btn-view{background:var(--bg);color:var(--text);border:1.5px solid var(--border);flex:1;}
   .btn-view:hover{border-color:var(--orange);color:var(--orange);}
 
-  /* ── Skeleton ── */
   .skeleton{background:linear-gradient(90deg,#ece8e4 25%,#f5f2ef 50%,#ece8e4 75%);background-size:200%;animation:shimmer 1.4s infinite;border-radius:10px;}
   @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
   .skel-card{background:var(--card);border-radius:var(--radius);padding:24px 18px 18px;border:1.5px solid var(--border);display:flex;flex-direction:column;align-items:center;gap:10px;}
@@ -125,7 +114,6 @@
   .empty-state svg{width:48px;height:48px;margin-bottom:12px;opacity:.4;}
   .empty-state p{font-size:.95rem;}
 
-  /* ── Chat Modal ── */
   .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:999;align-items:flex-end;justify-content:flex-end;padding:24px;}
   .modal-overlay.open{display:flex;}
   .chat-modal{background:#fff;border-radius:20px;width:340px;height:460px;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.2);overflow:hidden;animation:slideUp .25s ease;}
@@ -153,7 +141,6 @@
   .toast.show{transform:translateX(-50%) translateY(0);}
   .toast-icon{color:var(--orange);}
 
-  /* Profile Modal */
   .profile-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1000;align-items:center;justify-content:center;padding:20px;}
   .profile-overlay.open{display:flex;}
   .profile-modal{background:#fff;border-radius:24px;width:100%;max-width:500px;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.3);animation:popIn .25s cubic-bezier(.34,1.56,.64,1);}
@@ -202,7 +189,6 @@
   .avatar-clickable{cursor:pointer;transition:opacity .15s;}
   .avatar-clickable:hover{opacity:.82;}
 
-  /* ── POST DETAIL MODAL ── */
   .post-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:2000;display:none;align-items:center;justify-content:center;padding:16px;}
   .post-modal-overlay.open{display:flex;}
   .post-modal{background:#fff;border-radius:20px;width:100%;max-width:680px;max-height:92vh;display:flex;flex-direction:column;overflow:hidden;position:relative;}
@@ -244,7 +230,6 @@
   .comment-send-btn{width:36px;height:36px;border-radius:50%;background:var(--orange);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
   .comment-send-btn:hover{background:#d96a10;}
   .comment-send-btn svg{width:14px;height:14px;fill:#fff;}
-
 </style>
 </head>
 <body>
@@ -255,20 +240,6 @@
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>
       <span>HOME</span>
     </button>
-  </div>
-  <div class="nav-search">
-    <input type="text" placeholder="Search tournaments, sports…"/>
-    <button><svg viewBox="0 0 20 20"><path d="M13.6 12.2a6 6 0 1 0-1.4 1.4l4.2 4.2 1.4-1.4-4.2-4.2zm-5.6.8a4 4 0 1 1 0-8 4 4 0 0 1 0 8z"/></svg></button>
-  </div>
-  <div class="nav-icons">
-    <button title="Messages" onclick="location.href='Chats/chat.php'" style="position:relative" id="msgNavBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span class="req-badge" id="msg-badge" style="display:none">0</span></button>
-    <button title="Location"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 1 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></button>
-    <button title="Friend Requests" id="req-nav-btn" onclick="switchTab('requests', document.querySelector('[data-tab=requests]'))">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-      <span class="req-badge" id="nav-req-badge">0</span>
-    </button>
-    <button title="Notifications"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/></svg></button>
-    <button title="Profile"onclick="location.href='../profile.php'" style="position:relative" id="msgNavBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>
   </div>
 </nav>
 
@@ -326,7 +297,6 @@
 <!-- PROFILE MODAL -->
 <div class="profile-overlay" id="profileModal" onclick="closeProfileOnBg(event)">
   <div class="profile-modal" id="profileModalInner">
-    <!-- Banner -->
     <div class="pm-banner">
       <div class="pm-banner-bg" id="pmBannerBg"></div>
       <div class="pm-banner-pattern"></div>
@@ -335,9 +305,7 @@
         <div class="pm-avatar" id="pmAvatar"></div>
       </div>
     </div>
-    <!-- Scrollable content -->
     <div class="pm-scroll">
-      <!-- Info -->
       <div class="pm-info">
         <div class="pm-name" id="pmName">—</div>
         <span class="pm-role" id="pmRole">Athlete</span>
@@ -350,7 +318,6 @@
         </div>
         <div class="pm-actions" id="pmActions"></div>
       </div>
-      <!-- Posts -->
       <div class="pm-posts">
         <div class="pm-posts-title">Posts <span id="pmPostsCount">0</span></div>
         <div id="pmPostsFeed"><div class="pm-posts-loading">Loading posts…</div></div>
@@ -383,7 +350,6 @@
 <script>
 const API = './api';
 
-// ── Icons ──
 const icons = {
   add:     `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>`,
   chat:    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`,
@@ -409,9 +375,7 @@ function emptyState(msg) {
   </div>`;
 }
 
-// ── Person Card ──
 function personCard(u, mode) {
-  // mode: 'friend' | 'suggested' | 'request'
   const badgeClass = u.role === 'athlete' ? 'role-athlete' : 'role-coach';
   const badgeLabel = u.role === 'athlete' ? 'Athlete' : (u.role === 'organizer' ? 'Organizer' : 'Coach');
   const avatarInner = u.profile_pic
@@ -419,19 +383,15 @@ function personCard(u, mode) {
     : esc(u.initials||u.username.substring(0,2).toUpperCase());
 
   let actions = '';
-
   if (mode === 'friend') {
     actions = `
       <button class="btn btn-chat" onclick="openChat('${esc(u.username)}','${esc(u.initials)}')">${icons.chat} Chat</button>
       <button class="btn btn-remove" onclick="removeFriend(${u.id})" title="Remove">${icons.remove}</button>`;
-
   } else if (mode === 'request') {
     actions = `
       <button class="btn btn-accept"  onclick="respondRequest(${u.friendship_id},'accept',  this)">${icons.check} Accept</button>
       <button class="btn btn-decline" onclick="respondRequest(${u.friendship_id},'decline', this)">${icons.remove} Decline</button>`;
-
   } else {
-    // suggested
     if (u.friend_status === 'pending') {
       actions = `
         <button class="btn btn-pending" disabled>${icons.clock} Pending</button>
@@ -458,82 +418,64 @@ function esc(str) {
   return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
-// ── Load Friends ──
 async function loadFriends() {
   document.getElementById('friends-list').innerHTML = skeletonCards();
   document.getElementById('suggested-athletes').innerHTML = skeletonCards();
-
   const [connRes, suggRes] = await Promise.all([
     fetch(`${API}/get_users.php?role=athlete&type=friends`).then(r=>r.json()).catch(()=>({data:[]})),
     fetch(`${API}/get_users.php?role=athlete&type=suggested`).then(r=>r.json()).catch(()=>({data:[]})),
   ]);
-
   const connected = connRes.data || [];
   const suggested = suggRes.data || [];
-
   document.getElementById('friends-count').textContent = connected.length + ' connected';
   document.getElementById('friends-list').innerHTML = connected.length
     ? connected.map(u => personCard(u,'friend')).join('')
     : emptyState('No friends added yet');
-
   document.getElementById('suggested-athletes').innerHTML = suggested.length
     ? suggested.map(u => personCard(u,'suggested')).join('')
     : emptyState('No suggestions available');
 }
 
-// ── Load Coaches ──
 async function loadCoaches() {
   document.getElementById('coaches-list').innerHTML = skeletonCards();
   document.getElementById('suggested-coaches').innerHTML = skeletonCards();
-
   const [connRes, suggRes] = await Promise.all([
     fetch(`${API}/get_users.php?role=organizer&type=friends`).then(r=>r.json()).catch(()=>({data:[]})),
     fetch(`${API}/get_users.php?role=organizer&type=suggested`).then(r=>r.json()).catch(()=>({data:[]})),
   ]);
-
   const connected = connRes.data || [];
   const suggested = suggRes.data || [];
-
   document.getElementById('coaches-count').textContent = connected.length + ' connected';
   document.getElementById('coaches-list').innerHTML = connected.length
     ? connected.map(u => personCard(u,'friend')).join('')
     : emptyState('No coaches connected yet');
-
   document.getElementById('suggested-coaches').innerHTML = suggested.length
     ? suggested.map(u => personCard(u,'suggested')).join('')
     : emptyState('No suggestions available');
 }
 
-// ── Load Teams ──
 async function loadTeams() {
   document.getElementById('my-teams').innerHTML = skeletonCards(2);
   document.getElementById('open-teams').innerHTML = skeletonCards(2);
-
   const [myRes, openRes] = await Promise.all([
     fetch(`${API}/get_teams.php?type=my`).then(r=>r.json()).catch(()=>({data:[]})),
     fetch(`${API}/get_teams.php?type=open`).then(r=>r.json()).catch(()=>({data:[]})),
   ]);
-
   const myTeams   = myRes.data   || [];
   const openTeams = openRes.data || [];
-
   document.getElementById('myteams-count').textContent = myTeams.length + ' joined';
   document.getElementById('my-teams').innerHTML = myTeams.length
     ? myTeams.map(t => teamCard(t,true)).join('')
     : emptyState("You haven't joined any teams yet");
-
   document.getElementById('open-teams').innerHTML = openTeams.length
     ? openTeams.map(t => teamCard(t,false)).join('')
     : emptyState('No open teams available right now');
 }
 
-// ── Load Incoming Requests ──
 async function loadRequests() {
   document.getElementById('requests-list').innerHTML = skeletonCards();
-
   const res = await fetch(`${API}/get_users.php?role=athlete&type=requests`).then(r=>r.json()).catch(()=>({data:[]}));
   const requests = res.data || [];
-
   updateRequestBadge(requests.length);
   document.getElementById('req-count').textContent = requests.length + ' pending';
   document.getElementById('requests-list').innerHTML = requests.length
@@ -541,31 +483,23 @@ async function loadRequests() {
     : emptyState('No pending friend requests');
 }
 
-// ── Update badge counts ──
 function updateRequestBadge(count) {
-  const navBadge = document.getElementById('nav-req-badge');
   const tabBadge = document.getElementById('tab-req-badge');
   if (count > 0) {
-    navBadge.textContent = count;
-    navBadge.style.display = 'flex';
     tabBadge.textContent = count;
     tabBadge.style.display = 'inline';
   } else {
-    navBadge.style.display = 'none';
     tabBadge.style.display = 'none';
   }
 }
 
-// ── Actions ──
 async function sendRequest(userId, btn) {
   btn.disabled = true;
   btn.innerHTML = icons.clock + ' Sending…';
-
   const res = await fetch(`${API}/friend_action.php`, {
     method:'POST', headers:{'Content-Type':'application/json'},
     body: JSON.stringify({action:'send', friend_id: userId})
   }).then(r=>r.json()).catch(()=>({success:false}));
-
   if (res.success) {
     btn.className = 'btn btn-pending';
     btn.innerHTML = icons.clock + ' Pending';
@@ -581,12 +515,10 @@ async function sendRequest(userId, btn) {
 async function respondRequest(friendshipId, action, btn) {
   const card = btn.closest('.person-card');
   btn.disabled = true;
-
   const res = await fetch(`${API}/friend_action.php`, {
     method:'POST', headers:{'Content-Type':'application/json'},
     body: JSON.stringify({action, friendship_id: friendshipId})
   }).then(r=>r.json()).catch(()=>({success:false}));
-
   if (res.success) {
     toast(action === 'accept' ? '🎉 Friend request accepted!' : 'Request declined');
     card.style.opacity = '0';
@@ -594,7 +526,6 @@ async function respondRequest(friendshipId, action, btn) {
     card.style.transition = 'all .3s';
     setTimeout(() => {
       card.remove();
-      // Refresh counts
       loadRequests();
       if (action === 'accept') loadFriends();
     }, 350);
@@ -607,12 +538,10 @@ async function respondRequest(friendshipId, action, btn) {
 async function removeFriend(id) {
   const card = document.getElementById('pcard-'+id+'-friend');
   if (card) { card.style.opacity='.4'; card.style.pointerEvents='none'; }
-
   const res = await fetch(`${API}/friend_action.php`, {
     method:'POST', headers:{'Content-Type':'application/json'},
     body: JSON.stringify({action:'remove', friend_id: id})
   }).then(r=>r.json()).catch(()=>({success:false}));
-
   if (res.success) {
     toast('Connection removed');
     setTimeout(() => card && card.remove(), 400);
@@ -625,12 +554,10 @@ async function removeFriend(id) {
 async function joinTeam(id) {
   const btn = document.getElementById('join-'+id);
   if (btn) { btn.disabled=true; btn.textContent='Joining…'; }
-
   const res = await fetch(`${API}/join_team.php`, {
     method:'POST', headers:{'Content-Type':'application/json'},
     body: JSON.stringify({team_id:id})
   }).then(r=>r.json()).catch(()=>({success:false}));
-
   if (res.success) {
     toast('You joined the team! 🎉');
     setTimeout(() => loadTeams(), 800);
@@ -640,7 +567,6 @@ async function joinTeam(id) {
   }
 }
 
-// ── Team Card ──
 function teamCard(t, joined) {
   const color   = t.color || '#F07B20';
   const members = (t.members||[]).map(m =>
@@ -648,7 +574,6 @@ function teamCard(t, joined) {
       ? `<img src="${m.profile_pic}" style="width:100%;height:100%;border-radius:50%;object-fit:cover">`
       : m.initials}</div>`).join('');
   const extra = (t.total_members||0) - (t.members||[]).length;
-
   return `
   <div class="team-card">
     <div class="team-banner" style="background:${color}">
@@ -681,7 +606,6 @@ function teamCard(t, joined) {
   </div>`;
 }
 
-// ── Tabs ──
 const tabLoaded = {};
 function switchTab(tab, btn) {
   ['friends','coaches','teams','requests'].forEach(t => {
@@ -689,15 +613,12 @@ function switchTab(tab, btn) {
   });
   document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
   if (btn) btn.classList.add('active');
-
   if (tab==='coaches'  && !tabLoaded.coaches)  { loadCoaches();  tabLoaded.coaches=true;  }
   if (tab==='teams'    && !tabLoaded.teams)    { loadTeams();    tabLoaded.teams=true;    }
   if (tab==='requests' && !tabLoaded.requests) { loadRequests(); tabLoaded.requests=true; }
-  // Always reload requests to keep count fresh
   if (tab==='requests') { loadRequests(); }
 }
 
-// ── Chat ──
 function openChat(name, init) {
   document.getElementById('chatName').textContent = name;
   document.getElementById('chatAvatar').textContent = init;
@@ -716,7 +637,6 @@ function sendMsg() {
   inp.value = ''; msgs.scrollTop = msgs.scrollHeight;
 }
 
-// Profile Modal
 const bannerColors = ['#F07B20','#2775C9','#3EC87A','#9B59B6','#E04040','#F39C12','#1ABC9C'];
 
 function timeAgoJS(dateStr) {
@@ -731,11 +651,7 @@ function timeAgoJS(dateStr) {
 async function openProfile(uJson, mode) {
   const u = JSON.parse(decodeURIComponent(uJson));
   const color = bannerColors[u.id % bannerColors.length];
-
-  // Banner color
   document.getElementById('pmBannerBg').style.background = color;
-
-  // Avatar
   const pmAv = document.getElementById('pmAvatar');
   if (u.profile_pic) {
     pmAv.innerHTML = '';
@@ -747,63 +663,39 @@ async function openProfile(uJson, mode) {
   } else {
     pmAv.innerHTML = esc(u.initials||u.username.substring(0,2).toUpperCase());
   }
-
-  // Name & role
   document.getElementById('pmName').textContent = u.username;
   const roleEl = document.getElementById('pmRole');
   roleEl.textContent = u.role === 'athlete' ? 'Athlete' : (u.role === 'organizer' ? 'Organizer' : 'Coach');
   roleEl.className = 'pm-role ' + (u.role === 'athlete' ? 'role-athlete' : 'role-coach');
-
-  // Bio
   document.getElementById('pmBio').textContent = u.bio || 'No bio yet.';
-
-  // Stats
   document.getElementById('pmFriends').textContent = '…';
   document.getElementById('pmTeams').textContent   = '…';
   document.getElementById('pmPosts').textContent   = '…';
   document.getElementById('pmJoined').textContent  = '…';
-
-  // Action buttons
   renderPmActions(u, mode);
-
-  // Open modal
   document.getElementById('profileModal').classList.add('open');
-  // Reset scroll
   document.querySelector('.pm-scroll').scrollTop = 0;
-
-  // Show posts loading state
   document.getElementById('pmPostsFeed').innerHTML = '<div class="pm-posts-loading">Loading posts…</div>';
   document.getElementById('pmPostsCount').textContent = '…';
-
-  // Fetch stats + posts in parallel
   const [statsRes, postsRes] = await Promise.all([
     fetch(`${API}/get_profile_stats.php?user_id=${u.id}`).then(r=>r.json()).catch(()=>({})),
     fetch(`${API}/get_user_posts.php?user_id=${u.id}`).then(r=>r.json()).catch(()=>({data:[]}))
   ]);
-
-  // Fill stats
   document.getElementById('pmFriends').textContent = statsRes.friends ?? '0';
   document.getElementById('pmTeams').textContent   = statsRes.teams   ?? '0';
   document.getElementById('pmJoined').textContent  = statsRes.joined  ?? '—';
-
-  // Fill posts
   const posts = postsRes.data || [];
   document.getElementById('pmPosts').textContent     = posts.length;
   document.getElementById('pmPostsCount').textContent = posts.length;
-
   if (!posts.length) {
-    document.getElementById('pmPostsFeed').innerHTML =
-      `<div class="pm-no-posts">No posts yet.</div>`;
+    document.getElementById('pmPostsFeed').innerHTML = `<div class="pm-no-posts">No posts yet.</div>`;
     return;
   }
-
   const _init = esc(u.initials || u.username.substring(0,2).toUpperCase());
   const avatarHtml = u.profile_pic
-    ? `<img src="${u.profile_pic}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.outerHTML='<span>'+_init+'</span>'">`
+    ? `<img src="${esc(u.profile_pic)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.style.display='none'">`
     : _init;
-
   document.getElementById('pmPostsFeed').innerHTML = posts.map(p => {
-    // Build media HTML from media_files array
     const media = p.media_files || [];
     let mediaHtml = '';
     if (media.length === 1) {
@@ -821,10 +713,6 @@ async function openProfile(uJson, mode) {
       </div>`;
     }
     const caption = p.caption || p.content || '';
-    // Make media clickable to open post detail
-    const clickableMedia = mediaHtml.replace('<div class="msg-media"', '<div class="msg-media" style="cursor:pointer"')
-      .replace(/(<img [^>]+)(>)/g, '$1 onclick="openPostModal('+p.id+', postDataStore['+p.id+'])" style="cursor:pointer"$2')
-      .replace(/(<video [^>]+)(>)/g, '$1 onclick="openPostModal('+p.id+', postDataStore['+p.id+'])"$2');
     postDataStore[p.id] = {post: p, user: u};
     return `
     <div class="pm-post" id="pmpost-${p.id}" style="cursor:pointer" onclick="openPostModal(${p.id}, postDataStore[${p.id}])">
@@ -892,15 +780,9 @@ async function pmToggleLike(postId, btn) {
   }
 }
 
-function closeProfile() {
-  document.getElementById('profileModal').classList.remove('open');
-}
+function closeProfile() { document.getElementById('profileModal').classList.remove('open'); }
+function closeProfileOnBg(e) { if (e.target === document.getElementById('profileModal')) closeProfile(); }
 
-function closeProfileOnBg(e) {
-  if (e.target === document.getElementById('profileModal')) closeProfile();
-}
-
-// ── Toast ──
 function toast(msg) {
   document.getElementById('toastMsg').textContent = msg;
   const el = document.getElementById('toast');
@@ -908,10 +790,8 @@ function toast(msg) {
   setTimeout(() => el.classList.remove('show'), 2600);
 }
 
-// ── Init ──
 loadFriends();
 
-// Poll for new requests every 30s (badge update)
 async function pollRequests() {
   const res = await fetch(`${API}/get_friend_requests.php`).then(r=>r.json()).catch(()=>({count:0}));
   updateRequestBadge(res.count || 0);
@@ -919,25 +799,7 @@ async function pollRequests() {
 pollRequests();
 setInterval(pollRequests, 30000);
 
-// Poll unread message count for nav badge
-async function pollUnreadMsgs() {
-  const res = await fetch('./api/chat_api.php?action=unread_count').then(r=>r.json()).catch(()=>({count:0}));
-  const badge = document.getElementById('msg-badge');
-  if (res.count > 0) {
-    badge.textContent = res.count > 9 ? '9+' : res.count;
-    badge.style.display = 'flex';
-  } else {
-    badge.style.display = 'none';
-  }
-}
-pollUnreadMsgs();
-setInterval(pollUnreadMsgs, 15000);
-
-
-// ── POST DATA STORE ──
 const postDataStore = {};
-
-// ── POST MODAL ──
 let activePostId = null;
 
 async function openPostModal(postId, store) {
@@ -946,8 +808,6 @@ async function openPostModal(postId, store) {
   const u = store.user;
   document.getElementById('postModal').classList.add('open');
   document.getElementById('postCommentInput').style.display = 'flex';
-
-  // Media
   const mediaEl = document.getElementById('postModalMedia');
   const files = p.media_files || [];
   if (files.length) {
@@ -959,39 +819,26 @@ async function openPostModal(postId, store) {
   } else {
     mediaEl.style.display = 'none';
   }
-
-  // Body skeleton
   document.getElementById('postModalBody').innerHTML = '<div style="padding:20px;color:var(--muted);font-size:.85rem;">Loading…</div>';
-
-  // Author avatar
   const avHtml = u.profile_pic
     ? `<img src="${esc(u.profile_pic)}" onerror="this.style.display='none'">`
     : esc(u.initials || u.username.substring(0,2).toUpperCase());
-
   const caption = p.caption || p.content || '';
-
-  // Use post_actions.php (same as profile.php) for reactions+comments
   const POST_ACTIONS = '/Tourna/TF/api/post_actions_proxy.php';
   let reactions = [], comments = [], data_myReaction = null;
   try {
     const r    = await fetch(`${POST_ACTIONS}?action=load&post_id=${postId}`);
     const text = await r.text();
-
     let d;
-    try { d = JSON.parse(text); } catch(e) { console.error('post_actions parse error:', text.slice(0,200)); d = {}; }
+    try { d = JSON.parse(text); } catch(e) { d = {}; }
     if (d.success) {
       reactions       = Object.entries(d.counts||{}).map(([reaction,cnt])=>({reaction,cnt}));
       data_myReaction = d.myReaction || null;
       comments        = d.comments || [];
-    } else {
-      console.warn('post_actions load failed:', d.error || d);
     }
-  } catch(e) { console.error('post_actions load error', e); }
-  // Map profile.php reaction keys to emojis
+  } catch(e) {}
   const REACT_MAP = {like:'👍', love:'❤️', fire:'🔥', wow:'😮', haha:'😂'};
   const REACT_KEYS = ['like','love','fire','wow','haha'];
-
-  // Build reaction buttons matching profile.php format
   const reactBtns = REACT_KEYS.map(key => {
     const emoji = REACT_MAP[key];
     const found = reactions.find(r => r.reaction === key);
@@ -1003,8 +850,6 @@ async function openPostModal(postId, store) {
       <span class="cnt" id="rcnt-${postId}-${key}">${cnt||''}</span>
     </button>`;
   }).join('');
-
-  // Build comment list
   const commentHtml = comments.length
     ? comments.map(cm => {
         const init = esc((cm.username||'?').substring(0,2).toUpperCase());
@@ -1022,7 +867,6 @@ async function openPostModal(postId, store) {
         </div>`;
       }).join('')
     : '<div class="no-comments">No comments yet. Be the first!</div>';
-
   document.getElementById('postModalBody').innerHTML = `
     <div class="post-modal-author">
       <div class="post-modal-av">${avHtml}</div>
@@ -1053,9 +897,7 @@ function closePostModal() {
   document.getElementById('commentTextarea').value    = '';
   activePostId = null;
 }
-function closePostModalBg(e) {
-  if (e.target === document.getElementById('postModal')) closePostModal();
-}
+function closePostModalBg(e) { if (e.target === document.getElementById('postModal')) closePostModal(); }
 
 async function postModalLike(postId, btn) {
   const res = await fetch(`${API}/toggle_like.php`, {
@@ -1072,7 +914,6 @@ async function postModalLike(postId, btn) {
     btn.classList.remove('liked');
     svg.setAttribute('fill','none'); svg.setAttribute('stroke','currentColor');
   }
-  // Sync the card like button too
   const cardBtn = document.getElementById('pmlike-'+postId);
   if (cardBtn) {
     document.getElementById('pmlike-count-'+postId).textContent = res.like_count;
@@ -1092,17 +933,14 @@ async function toggleReaction(postId, reactionKey, btn) {
   try {
     const res = await fetch(POST_ACTIONS, {method:'POST', body:fd}).then(r=>r.json());
     if (!res.success) return;
-
-    // Update all reaction buttons for this post
     const REACT_KEYS = ['like','love','fire','wow','haha'];
-    const REACT_MAP  = {like:'👍', love:'❤️', fire:'🔥', wow:'😮', haha:'😂'};
     REACT_KEYS.forEach(key => {
       const b    = document.getElementById(`react-${postId}-${key}`);
       const cntEl= document.getElementById(`rcnt-${postId}-${key}`);
       if (b) b.classList.toggle('active', res.myReaction === key);
       if (cntEl) cntEl.textContent = (res.counts?.[key] || '') + '';
     });
-  } catch(e) { console.error('toggleReaction error', e); }
+  } catch(e) {}
 }
 
 async function submitComment() {
@@ -1110,46 +948,25 @@ async function submitComment() {
   const ta   = document.getElementById('commentTextarea');
   const body = ta.value.trim();
   if (!body) return;
-
-  // Optimistically clear input
   ta.value = ''; ta.style.height = 'auto';
-
   const POST_ACTIONS = '/Tourna/TF/api/post_actions_proxy.php';
   let res;
   try {
     const fd = new FormData();
     fd.append('action',   'comment');
     fd.append('post_id',  activePostId);
-    fd.append('comment',  body);  // profile.php uses 'comment' not 'body'
-    const r    = await fetch(POST_ACTIONS, {method:'POST', body:fd});
-    const raw  = await r.text();
-    console.log('COMMENT RAW RESPONSE:', raw);
-    try { res = JSON.parse(raw); } catch(e) { alert('Parse error: ' + raw.slice(0,300)); return; }
-  } catch(e) {
-    console.error('Comment submit error:', e);
-    alert('Fetch error: ' + e.message);
-    return;
-  }
-
-  if (!res || !res.success) {
-    const errMsg = res?.error || JSON.stringify(res);
-    console.error('Comment failed:', errMsg);
-    const feed2 = document.getElementById('comments-feed-' + activePostId);
-    if (feed2) feed2.insertAdjacentHTML('beforeend',
-      `<div style="color:red;font-size:.78rem;padding:6px 10px;background:#fff0f0;border-radius:8px;margin:4px 0;">
-        ❌ ${errMsg}</div>`);
-    return;
-  }
-
-  // profile.php returns: {success, comment_id, comment, username, profile_pic, created_at}
+    fd.append('comment',  body);
+    const r   = await fetch(POST_ACTIONS, {method:'POST', body:fd});
+    const raw = await r.text();
+    try { res = JSON.parse(raw); } catch(e) { return; }
+  } catch(e) { return; }
+  if (!res || !res.success) return;
   const cm   = res;
   const init = esc((cm.username||'?').substring(0,2).toUpperCase());
   const picSrc = cm.profile_pic ? '/Tourna/uploads' + cm.profile_pic : null;
   const cmAv = picSrc
     ? `<img src="${esc(picSrc)}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.style.display='none'">`
     : init;
-
-  // Find feed — try both with activePostId as number and string
   const feed = document.getElementById('comments-feed-' + activePostId);
   if (feed) {
     const noC = feed.querySelector('.no-comments');
@@ -1164,12 +981,8 @@ async function submitComment() {
         </div>
       </div>`);
     feed.lastElementChild.scrollIntoView({behavior:'smooth'});
-
-    // Update comment count badge
     const countBadge = feed.closest('.post-modal-body')?.querySelector('.comments-title span');
     if (countBadge) countBadge.textContent = feed.querySelectorAll('.comment-item').length;
-  } else {
-    console.error('Feed element not found: comments-feed-' + activePostId);
   }
 }
 </script>
